@@ -1,4 +1,4 @@
-const CACHE = "sitenotes-v3";
+const CACHE = "sitenotes-v4";
 const SHELL = ["./", "./index.html", "./manifest.json", "./icon-192.png", "./icon-512.png"];
 const LIBS = [
   "https://cdn.jsdelivr.net/npm/exifr@7.1.3/dist/lite.umd.js",
@@ -22,6 +22,7 @@ self.addEventListener("fetch", e => {
   const req = e.request;
   if (req.method !== "GET") return;
   const url = new URL(req.url);
+  if (url.pathname.includes("/api/")) return; // live data from the PC - never cached
   // App page: network first (to get updates), fall back to cache when offline
   if (req.mode === "navigate" || (url.origin === location.origin && url.pathname.endsWith("index.html"))) {
     e.respondWith(fetch(req).then(r => { const cp = r.clone(); caches.open(CACHE).then(c => c.put("./index.html", cp)); return r; })

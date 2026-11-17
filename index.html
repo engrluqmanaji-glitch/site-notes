@@ -61,7 +61,19 @@ input:focus,select:focus,textarea:focus{outline:2px solid #7fb0dc;border-color:#
 .rec .thumb{width:64px;height:64px;border-radius:8px;object-fit:cover;background:#e9eef2;flex:0 0 64px}
 .badge{display:inline-block;font-size:11.5px;padding:2px 8px;border-radius:12px;white-space:nowrap;font-weight:600}
 .b-open{background:var(--openbg);color:var(--open)}.b-closed{background:var(--okbg);color:var(--ok)}
-.b-bad{background:var(--badbg);color:var(--bad)}.b-info{background:var(--infobg);color:var(--info)}.b-void{background:var(--voidbg);color:var(--void)}
+.b-bad{background:var(--badbg);color:var(--bad)}.b-info{background:var(--infobg);color:var(--info)}.b-void{background:var(--voidbg);color:var(--void)}.b-todo{background:#fff1d6;color:#8a5300;border:1px dashed #e8a33d}
+.phr{display:flex;flex-wrap:wrap;gap:6px;max-height:132px;overflow:auto;padding:2px}
+.pchip{border:1px solid #d6e0e8;background:#f6f9fb;color:#1d2b36;border-radius:16px;padding:6px 10px;font-size:13px;cursor:pointer;text-align:left}
+.pchip.used{background:#e6f3e7;border-color:#bfe0c3}.pchip.add{background:#fff;border-style:dashed;color:#9a5d00;border-color:#e8a33d}
+.mk{position:fixed;inset:0;background:#0d161d;z-index:60;display:flex;flex-direction:column}
+.mk .mkbar{flex:0 0 auto;display:flex;gap:6px;align-items:center;padding:8px;background:#14324d;flex-wrap:wrap}
+.mk .mkbar button{background:#ffffff1a;color:#fff;border:1px solid #ffffff33;border-radius:10px;padding:8px 10px;font-size:14px;cursor:pointer}
+.mk .mkbar button.on{background:#e8a33d;border-color:#e8a33d;color:#1d1300}
+.mk .mkbar .sw{width:28px;height:28px;border-radius:50%;padding:0;border:2px solid #fff6}
+.mk .mkbar .sw.on{outline:3px solid #fff}
+.mk .stage{flex:1 1 0;min-height:0;display:flex;align-items:center;justify-content:center;overflow:hidden;touch-action:none}
+.mk canvas{max-width:100%;max-height:100%;touch-action:none}
+.ph .mkb{position:absolute;left:4px;top:70px;background:#e8a33d;color:#1d1300;border:0;border-radius:8px;font-size:12px;font-weight:700;padding:3px 7px;cursor:pointer}
 .b-minor{background:#fff1d6;color:#8a5a00}.b-ok{background:var(--okbg);color:var(--ok)}
 .overdue{color:var(--bad);font-weight:600}
 .fab{position:fixed;right:16px;bottom:calc(18px + var(--safe-bot));z-index:30;display:flex;gap:8px}
@@ -151,12 +163,13 @@ main{padding:14px 14px calc(96px + var(--safe-bot))}
 .kpi .ico{width:42px;height:42px;border-radius:12px;display:flex;align-items:center;justify-content:center;flex:0 0 42px}
 .kpi b{display:block;font-size:24px;line-height:1.1}
 .kpi span{font-size:12.5px;color:var(--mut)}
+.syncl{font-size:13px;font-weight:600;margin:-6px 2px 12px;display:flex;align-items:center;gap:6px}
 .subline{display:flex;justify-content:space-between;font-size:12.5px;color:var(--mut);background:#fff;border:1px solid var(--line);border-radius:12px;padding:9px 12px;margin-bottom:16px}
 .sect{display:flex;justify-content:space-between;align-items:center;margin:18px 2px 8px}
 .sect h2{font-size:15px;margin:0;color:var(--ink)}
 .sect a,.sect button{font-size:13px;color:var(--pri2);background:none;border:0;cursor:pointer;display:flex;align-items:center;gap:2px;padding:0}
-.qa{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
-.qa button{background:#fff;border:1px solid var(--line);border-radius:14px;padding:12px 6px;display:flex;flex-direction:column;align-items:center;gap:6px;font-size:12.5px;font-weight:600;color:var(--ink);cursor:pointer;position:relative}
+.qa{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
+.qa button{background:#fff;border:1px solid var(--line);border-radius:14px;padding:10px 4px;display:flex;flex-direction:column;align-items:center;gap:6px;font-size:11.5px;text-align:center;line-height:1.2;font-weight:600;color:var(--ink);cursor:pointer;position:relative}
 .qa button .ico{width:40px;height:40px;border-radius:12px;display:flex;align-items:center;justify-content:center}
 .qa .cnt{position:absolute;top:6px;right:8px;background:var(--bad);color:#fff;font-size:11px;border-radius:10px;padding:0 6px;font-weight:700}
 .ztiles{display:grid;grid-template-columns:1fr 1fr;gap:10px}
@@ -213,7 +226,24 @@ const DEFAULTS = {
   components: ["BPC","HCC","Manhole","Pipeline","Other"],
   activities: ["Setting out","Excavation","Rock excavation","Shoring / trench support","Dewatering","Pipe laying","Chamber / MH construction","Encasement","Backfilling & compaction","Testing (air / water / CCTV)","Reinstatement","Utilities damage","Traffic management / HSE","Completion / handover"],
   responsible: ["Contractor","Subcontractor","Utility owner","Client"],
-  project: PROJECT_DEFAULT, company: "", assets: {}
+  project: PROJECT_DEFAULT, company: "", inspector: "Engr Luqman", assets: {}, phrases: {}, cameraFirst: true
+};
+const PHRASES = {
+  "_": ["Work as per approved drawing","Contractor instructed to rectify","Housekeeping poor – clean the area","Barricades / signage missing","PPE not worn by workers","Rep. not present on site","Inspection rejected – re-offer after correction"],
+  "Setting out": ["Setting out checked – OK","Levels not as per drawing","Pegs / markers missing","Alignment deviates from drawing","Survey data not submitted"],
+  "Excavation": ["Trench depth not as per drawing","Trench width insufficient","Spoil placed too close to trench edge","No safe access / ladder in trench","Trench bottom not trimmed / loose material","Excavation near existing utility without trial pit"],
+  "Rock excavation": ["Over-break to be backfilled with approved material","Rock breaking without noise/dust control","Loose rock on trench sides","Trench bottom not cleaned of rock"],
+  "Shoring / trench support": ["No shoring for depth over 1.5 m","Shoring not as per approved method statement","Shoring boxes damaged / gaps","Shoring removed before backfilling"],
+  "Dewatering": ["Water in trench – dewatering required","Discharge without settlement tank","Pump discharge onto road / private plot","Dewatering permit not available on site"],
+  "Pipe laying": ["Bedding thickness not as per drawing","Pipe gradient not as per design","Pipe joint not properly seated","Pipe ends not capped","Damaged pipe used","Pipe laid on rock / without bedding"],
+  "Chamber / MH construction": ["Blinding not provided","Reinforcement cover insufficient","Benching not as per drawing","Cover level not matching road level","Honeycombing in concrete","Coating not applied / incomplete","Step irons missing / misaligned"],
+  "Encasement": ["Encasement thickness insufficient","Formwork not adequate","Concrete cubes not taken","Pipe not supported before casting"],
+  "Backfilling & compaction": ["Backfill layers thicker than 200 mm","Compaction test (FDT) not done","FDT result below 95% – re-compact","Unsuitable backfill material","Warning tape not placed","Marker tape at wrong depth"],
+  "Testing (air / water / CCTV)": ["Air test passed","Water test passed","Test failed – leakage observed","CCTV survey pending","Test witnessed – OK"],
+  "Reinstatement": ["Reinstatement not as per original condition","Asphalt level not matching existing road","Interlock not re-laid properly","Kerb stones damaged","Surface settlement observed"],
+  "Utilities damage": ["Water line damaged during excavation","Electric cable damaged","Telecom cable damaged","Utility owner informed","Damage repaired – to verify"],
+  "Traffic management / HSE": ["Traffic diversion not as per approved TMP","Flagman not provided","Night lights / reflectors missing","Open trench not covered / barricaded","Excavator working without banksman"],
+  "Completion / handover": ["Snag list issued","Snags closed – ready for handover","As-built drawings pending","Final cleaning required"]
 };
 const OBS = [
   {k:"Info",label:"Info (for record)",cls:"t-info",badge:"b-info"},
@@ -279,7 +309,7 @@ function statusBadge(n){
   if(n.status==="Closed") return `<span class="badge b-closed">Closed</span>`;
   return `<span class="badge b-open">${esc(n.status||"Open")}</span>`;
 }
-function obsBadge(n){ const o=OBS.find(x=>x.k===n.obsType); return o && n.obsType!=="Info" ? `<span class="badge ${o.badge}">${esc(n.obsType)}</span>`:""; }
+function obsBadge(n){ const o=OBS.find(x=>x.k===n.obsType); return (n.incomplete&&n.status!=="Void"?`<span class="badge b-todo">To complete</span> `:"")+(o && n.obsType!=="Info" ? `<span class="badge ${o.badge}">${esc(n.obsType)}</span>`:""); }
 function where(n){ return [n.zone, n.plot && ("Plot/Line "+n.plot), n.asset].filter(Boolean).join(" · "); }
 function headline(n){
   const comp = n.component==="Other" ? (n.componentOther||"Other") : n.component;
@@ -302,6 +332,7 @@ function filtered(){
   if(statFilter==="closed") L=L.filter(n=>n.status==="Closed");
   if(statFilter==="ncr") L=L.filter(n=>n.ncrType && n.ncrType!=="None");
   if(statFilter==="info") L=L.filter(n=>n.status==="Info");
+  if(statFilter==="todo") L=L.filter(n=>n.incomplete && n.status!=="Void");
   if(statFilter!=="void") { if(!filters.showVoid) L=L.filter(n=>n.status!=="Void"); }
   const f=filters;
   if(f.comp) L=L.filter(n=>n.component===f.comp);
@@ -392,15 +423,19 @@ function renderHome(){
   if(archive) html+=`<div class="banner" style="background:#e4effa;border-color:#b5d4f4;color:#0c447c">Viewing old records: <b>${esc(archive.names.join(", "))}</b> (${archive.count}, read-only). <button class="btn sm" id="exitArch" style="margin-left:6px">Back to live records</button></div>`;
   if(!db) html+=`<div class="banner">${esc(loadNote||"Starting…")}</div>`;
   html+=installCard();
-  html+=`<div class="hero"><div class="d">${esc(dstr)}</div><div class="g">${greet}</div>
+  const todo=liveNotes.filter(n=>n.incomplete&&n.status!=="Void");
+  if(todo.length && !archive) html+=`<div class="banner" style="display:flex;align-items:center;gap:8px;flex-wrap:wrap"><span><b>${todo.length} quick record${todo.length>1?"s":""}</b> to complete.</span><span style="flex:1"></span><button class="btn sm" id="todoBtn">Show</button></div>`;
+  html+=`<div class="hero"><div class="d">${esc(dstr)}</div><div class="g">${greet}${settings.inspector?", "+esc(settings.inspector):""}</div>
     <div class="row2"><div><b>${todayL.length}</b>records today</div><div><b>${raisedToday}</b>defects raised</div><div><b>${photosToday}</b>photos</div></div></div>`;
+  if(db && !archive) html+=`<div class="syncl" id="syncLine"></div>`;
   const kp=(k,label,val,icon,col,bg)=>`<button class="kpi" data-s="${k}"><div class="ico" style="background:${bg};color:${col}">${ic(icon)}</div><div><b style="color:${col}">${val}</b><span>${label}</span></div></button>`;
   html+=`<div class="kpis">${kp("open","Open items",c.open,"clock","#b7791f","#fdf3e1")}${kp("overdue","Overdue",c.overdue,"alert","#b42e2e","#fbe6e6")}${kp("closed","Closed",c.closed,"check","#2f7a3b","#e6f3e7")}${kp("ncr","NCR / SOR",c.ncr,"file","#14324d","#e4ecf3")}</div>`;
   html+=`<div class="subline"><span>${ic("info","sm")} Info records: <b>${c.info}</b></span><span>Total: <b>${L.length}</b></span></div>`;
   if(canWrite && !archive) html+=`<div class="qa">
     <button id="qaNew"><div class="ico" style="background:#fdf0dc;color:#9a5d00">${ic("camera")}</div>New record</button>
     <button id="qaRep"><div class="ico" style="background:#e4ecf3;color:#14324d">${ic("repeat")}</div>Repeat last</button>
-    <button id="qaSend">${u.count?`<span class="cnt">${u.count}</span>`:""}<div class="ico" style="background:#e6f3e7;color:#2f7a3b">${ic("send")}</div>Send to PC</button></div>`;
+    <button id="qaDay"><div class="ico" style="background:#fbe6e6;color:#b42e2e">${ic("file")}</div>Today's report</button>
+    <button id="qaSend">${u.count?`<span class="cnt">${u.count}</span>`:""}<div class="ico" style="background:#e6f3e7;color:#2f7a3b">${ic("send")}</div>${PC?"Sync now":"Send to PC"}</button></div>`;
   html+=`<div class="sect"><h2>Zones</h2>${zone!=="All"?`<button id="allZ">Show all</button>`:""}</div><div class="ztiles">`+
     settings.zones.map(z=>{ const A=zoneNotes(z).filter(n=>n.status!=="Void"); const k=counts(A); const tot=k.open+k.closed; const pc=tot?Math.round(k.closed/tot*100):0;
       return `<button class="zt ${z===zone?"on":""}" data-zt="${esc(z)}"><div class="zc"><b>${esc(z)}</b>${k.overdue?`<span class="badge b-bad">${k.overdue} overdue</span>`:k.open?`<span class="badge b-open">${k.open} open</span>`:k.closed?`<span class="badge b-closed">All closed</span>`:A.length?`<span class="badge b-info">Info</span>`:""}</div>
@@ -413,8 +448,9 @@ function renderHome(){
   html+=`<div class="foot">${esc(settings.project).replace(/\n/g,"<br>")}</div>`;
   const v=$("#view"); v.innerHTML=html;
   const on=(id,f)=>{ const e=$(id); if(e) e.onclick=f; };
-  on("#updBtn",applyUpdate); on("#exitArch",closeArchive);
-  on("#qaNew",()=>startNew(false)); on("#qaRep",()=>startNew(true)); on("#qaSend",()=>{ lastTab="reports"; go({v:"reports"}); });
+  on("#updBtn",applyUpdate); on("#exitArch",closeArchive); on("#todoBtn",()=>{ statFilter="todo"; lastTab="list"; go({v:"list"}); });
+  paintSync();
+  on("#qaNew",()=>startNew(false)); on("#qaRep",()=>startNew(true)); on("#qaDay",dayReport); on("#qaSend",()=>{ if(PC){ syncNow(true); return; } lastTab="reports"; go({v:"reports"}); });
   on("#allZ",()=>{ zone="All"; lsSet("zone",zone); render(); }); on("#viewAll",()=>{ statFilter=""; lastTab="list"; go({v:"list"}); });
   const ib=$("#instBtn"); if(ib) ib.onclick=async()=>{ if(!installEvt) return; installEvt.prompt(); try{ const r=await installEvt.userChoice; if(r.outcome==="accepted") lsSet("installDone",true); }catch(e){} installEvt=null; render(); };
   const ix=$("#instX"); if(ix) ix.onclick=()=>{ lsSet("installHide",true); render(); };
@@ -436,8 +472,8 @@ function renderList(){
   const opt=(arr,v)=>`<option value="">All</option>`+arr.map(x=>`<option ${x===v?"selected":""}>${esc(x)}</option>`).join("");
   let html="";
   if(archive) html+=`<div class="banner" style="background:#e4effa;border-color:#b5d4f4;color:#0c447c">Viewing old records: <b>${esc(archive.names.join(", "))}</b> (${archive.count}, read-only). <button class="btn sm" id="exitArch" style="margin-left:6px">Back to live records</button></div>`;
-  if(db && !archive){ const u=unsentInfo(); if(u.count && u.oldest && (Date.now()-new Date(u.oldest).getTime())>20*3600e3) html+=`<div class="banner"><b>${u.count} record${u.count>1?"s":""} not yet sent to PC.</b> They live only on this phone until you send them. <button class="btn sm" id="goSend" style="margin-left:6px">Send to PC</button></div>`; }
-  html+=`<div class="seg">`+[["","All",zoneNotes(zone).filter(n=>n.status!=="Void").length],["open","Open",c.open],["overdue","Overdue",c.overdue],["closed","Closed",c.closed],["ncr","NCR / SOR",c.ncr],["info","Info",c.info]]
+  if(db && !archive && !PC){ const u=unsentInfo(); if(u.count && u.oldest && (Date.now()-new Date(u.oldest).getTime())>20*3600e3) html+=`<div class="banner"><b>${u.count} record${u.count>1?"s":""} not yet sent to PC.</b> They live only on this phone until you send them. <button class="btn sm" id="goSend" style="margin-left:6px">Send to PC</button></div>`; }
+  html+=`<div class="seg">`+[["","All",zoneNotes(zone).filter(n=>n.status!=="Void").length],["open","Open",c.open],["overdue","Overdue",c.overdue],["closed","Closed",c.closed],["ncr","NCR / SOR",c.ncr],["info","Info",c.info]].concat(zoneNotes(zone).some(n=>n.incomplete&&n.status!=="Void")?[["todo","To complete",zoneNotes(zone).filter(n=>n.incomplete&&n.status!=="Void").length]]:[])
     .map(([k,l,v])=>`<button class="${statFilter===k?"on":""}" data-s="${k}">${l}<span class="n">${v}</span></button>`).join("")+`</div>`;
   html+=`<div class="tools"><input type="search" id="q" placeholder="Search plot, MH no., RFI, NCR, text…" value="${esc(filters.q)}">
     <button class="btn sm" id="fToggle">Filters${(filters.comp||filters.act||filters.obs||filters.from||filters.to)?" •":""}</button></div>
@@ -485,7 +521,34 @@ function blankDraft(repeat){
   if(repeat && last.zone){ Object.assign(d,{zone:last.zone, plot:last.plot||"", asset:last.asset||"", component:last.component||"", componentOther:last.componentOther||"", activity:last.activity||"", from:last.from||"", to:last.to||"", rfi:last.rfi||""}); }
   return d;
 }
-function startNew(repeat){ if(!db){ toast("Storage isn't available in this view."); return; } draft=blankDraft(repeat); pending=[]; go({v:"edit"}); getLocation(); }
+function startNew(repeat){ if(!db){ toast("Storage isn't available in this view."); return; } draft=blankDraft(repeat); pending=[]; go({v:"edit"}); fillRefs(); getLocation();
+  if(settings.cameraFirst!==false && !isPcHost){ const c=$("#phCam"); if(c) c.click(); } }
+const REF_KEYS=["drawing","itp","contractorRep","responsible","rfi"];
+function refMem(){ return lsGet("refs",{}); }
+function fillRefs(){
+  if(!draft || !draft.zone) return false; const m=refMem(); const z=draft.zone, p=(draft.plot||"").trim().toLowerCase();
+  const src=(p&&m[z+"|"+p]) || m[z]; if(!src) return false; let used=false;
+  for(const k of REF_KEYS){ if(k==="rfi" && !(p&&m[z+"|"+p])) continue; if(!draft[k] && src[k]){ draft[k]=src[k]; used=true; const el=$("#e_"+k); if(el) el.value=src[k]; } }
+  const h=$("#refHint"); if(h) h.classList.toggle("hidden",!used);
+  return used;
+}
+function saveRefs(d){
+  const m=refMem(); const v={}; REF_KEYS.forEach(k=>{ if(d[k]) v[k]=d[k]; }); if(!Object.keys(v).length) return;
+  m[d.zone]={...(m[d.zone]||{}),...v}; if(d.plot) m[d.zone+"|"+d.plot.trim().toLowerCase()]={...(m[d.zone+"|"+d.plot.trim().toLowerCase()]||{}),...v};
+  const reps=lsGet("reps",[]); if(d.contractorRep && !reps.includes(d.contractorRep)){ reps.unshift(d.contractorRep); lsSet("reps",reps.slice(0,15)); }
+  lsSet("refs",m);
+}
+function phrasesFor(act){ return ((settings.phrases||{})[act]||[]).concat(PHRASES[act]||[]).concat(((settings.phrases||{})["_"]||[])).concat(PHRASES["_"]); }
+function phraseHtml(){
+  const L=[...new Set(phrasesFor(draft.activity))];
+  return `<div class="small muted" style="margin:2px 0 6px">${draft.activity?"Tap to add – "+esc(draft.activity):"Choose an activity for more phrases"}</div><div class="phr">`+L.map(t=>`<button type="button" class="pchip" data-ph="${esc(t)}">${esc(t)}</button>`).join("")+`<button type="button" class="pchip add" id="phAdd">+ My phrase</button></div>`;
+}
+function bindPhrases(){
+  const box=$("#phrBox"); if(!box) return;
+  box.querySelectorAll("[data-ph]").forEach(b=>b.onclick=()=>{ const ta=$("#e_observation"); const cur=ta.value.trim(); ta.value = cur ? cur.replace(/[.;,\s]*$/,"")+"; "+b.dataset.ph : b.dataset.ph; draft.observation=ta.value; b.classList.add("used"); });
+  const a=$("#phAdd"); if(a) a.onclick=async()=>{ const t=await dialog({title:"Save my phrase",body:draft.activity?`Saved under “${draft.activity}”.`:"Saved for all activities.",input:"Bedding not compacted",ok:"Save"}); if(!t||!t.trim()) return;
+    const key=draft.activity||"_"; settings.phrases={...(settings.phrases||{})}; settings.phrases[key]=[t.trim()].concat((settings.phrases[key]||[]).filter(x=>x!==t.trim())); await saveSettings(); collect(); box.innerHTML=phraseHtml(); bindPhrases(); toast("Phrase saved"); };
+}
 let locState="idle"; // idle | busy | ok | denied | fail
 function locHtml(){
   const g=draft&&draft.gps;
@@ -538,7 +601,7 @@ function renderEdit(){
   <div class="card">
     <div class="fld"><label>Observation type <span class="req">*</span></label>${chipRow("obsType", OBS, d.obsType)}<div class="err hidden" data-err="obsType">Choose a type</div></div>
     <div class="fld ${defect?"":"hidden"}" id="w_sev"><label>Severity</label>${chipRow("severity", ["Low","Medium","High"], d.severity)}</div>
-    <div class="fld"><label>Observation / description</label><textarea id="e_observation" placeholder="What you saw on site">${esc(d.observation)}</textarea></div>
+    <div class="fld"><label>Observation / description</label><textarea id="e_observation" placeholder="What you saw on site – or tap a phrase below">${esc(d.observation)}</textarea><div id="phrBox">${phraseHtml()}</div></div>
     <div class="fld"><label>Photos <span class="req ${defect?"":"hidden"}" id="phReq">*</span></label>
       <div class="photos" id="photos"></div>
       <input type="file" id="phIn" accept="image/*" multiple class="hidden">
@@ -559,14 +622,14 @@ function renderEdit(){
     </div>
   </div>
   <div class="card">
-    <h3>References</h3>
+    <h3>References</h3><div id="refHint" class="small hidden" style="margin:-4px 0 8px;color:#2f7a3b">✓ Filled from your last record here – change if needed</div>
     <div class="grid2">
       <div class="fld"><label>RFI no.</label><input id="e_rfi" value="${esc(d.rfi)}" placeholder="1043"></div>
       <div class="fld"><label>Drawing / rev</label><input id="e_drawing" value="${esc(d.drawing)}" placeholder="SW-201 / C"></div>
     </div>
     <div class="grid2">
       <div class="fld"><label>ITP / spec clause</label><input id="e_itp" value="${esc(d.itp)}"></div>
-      <div class="fld"><label>Contractor rep present</label><input id="e_contractorRep" value="${esc(d.contractorRep)}"></div>
+      <div class="fld"><label>Contractor rep present</label><input id="e_contractorRep" list="repList" value="${esc(d.contractorRep)}"><datalist id="repList">${lsGet("reps",[]).map(a=>`<option value="${esc(a)}">`).join("")}</datalist></div>
     </div>
     <details ${d.weather||d.ground||d.measurements?"open":""}><summary class="small muted" style="cursor:pointer;margin-bottom:8px">More: weather, ground, measurements</summary>
       <div class="grid2">
@@ -576,7 +639,7 @@ function renderEdit(){
       <div class="fld"><label>Measurements / test results</label><textarea id="e_measurements" placeholder="Depth 2.4 m, GWL 1.8 m, FDT 96%">${esc(d.measurements)}</textarea></div>
     </details>
   </div>
-  <div class="formbar"><button class="btn" id="cancelE">Cancel</button><button class="btn pri" id="saveE">Save record</button></div>`;
+  <div class="formbar"><button class="btn" id="cancelE">Cancel</button>${isNew||d.incomplete?`<button class="btn" id="quickE" title="Save now, finish the details later">Quick save</button>`:""}<button class="btn pri" id="saveE">Save record</button></div>`;
   $("#view").innerHTML=html;
   renderPhotos();
   const v=$("#view");
@@ -594,10 +657,14 @@ function renderEdit(){
     if(name){ const t=name.trim(); if(!settings.activities.includes(t)){ settings.activities.push(t); await saveSettings(); } collect(); draft.activity=t; renderEdit(); }
     else e.target.value=draft.activity||"";
   };
-  $("#e_zone").onchange=()=>{ collect(); renderEdit(); };
+  $("#e_zone").onchange=()=>{ collect(); renderEdit(); fillRefs(); };
+  $("#e_plot").addEventListener("change",()=>{ collect(); fillRefs(); });
+  $("#e_activity").addEventListener("change",e=>{ if(e.target.value==="__add") return; collect(); const b=$("#phrBox"); if(b){ b.innerHTML=phraseHtml(); bindPhrases(); } });
+  bindPhrases();
+  const qe=$("#quickE"); if(qe) qe.onclick=()=>saveDraft(true);
   v.querySelectorAll("input,textarea,select").forEach(i=>i.addEventListener("input",()=>{ const k=i.id.replace("e_",""); const er=v.querySelector(`[data-err="${k}"]`); if(er) er.classList.add("hidden"); }));
   $("#cancelE").onclick=()=>{ pending.forEach(p=>URL.revokeObjectURL(p.url)); pending=[]; if(route.id) go({v:"detail",id:route.id}); else go({v:"list"}); };
-  $("#saveE").onclick=saveDraft;
+  $("#saveE").onclick=()=>saveDraft(false);
   $("#phIn").onchange=e=>addFiles([...e.target.files]);
   $("#phCam").onchange=e=>{ addFiles([...e.target.files]).then(()=>{ $("#phCam").value=""; }); };
   bindLoc();
@@ -612,8 +679,9 @@ function renderPhotos(){
   const el=$("#photos"); if(!el) return;
   const tagSel=(key,v)=>`<select data-ptag="${key}">${TAGS.map(t=>`<option ${t===v?"selected":""}>${t}</option>`).join("")}</select>`;
   el.innerHTML = draft.photos.map((p,i)=>`<div class="ph"><img src="${blob(p.prev||p.orig)}" alt=""><span class="tag">${esc(p.tag||"")}</span>${route.id&&draft.status==="Closed"?"":`<button class="x" data-rm="old:${i}" aria-label="Remove photo">×</button>`}<div class="cap"><input data-pcap="old:${i}" value="${esc(p.caption||"")}" placeholder="Caption">${tagSel("old:"+i,p.tag)}</div></div>`).join("")
-   + pending.map((p,i)=>`<div class="ph"><img src="${p.url}" alt=""><span class="tag">New${p.gps?" · GPS":""}</span><button class="x" data-rm="new:${i}" aria-label="Remove photo">×</button><div class="cap"><input data-pcap="new:${i}" value="${esc(p.caption||"")}" placeholder="Caption">${tagSel("new:"+i,p.tag)}</div></div>`).join("")
+   + pending.map((p,i)=>`<div class="ph"><img src="${p.url}" alt=""><span class="tag">${p.marked?"Marked":"New"}${p.gps?" · GPS":""}</span><button class="x" data-rm="new:${i}" aria-label="Remove photo">×</button><button type="button" class="mkb" data-mk="${i}">✎ Mark</button><div class="cap"><input data-pcap="new:${i}" value="${esc(p.caption||"")}" placeholder="Caption">${tagSel("new:"+i,p.tag)}</div></div>`).join("")
    + `<div class="addph" id="addCam" style="border-color:#e8a33d;color:#9a5d00">${ic("camera","lg")}Take photo</div><div class="addph" id="addGal">${ic("photo","lg")}Gallery</div>`;
+  el.querySelectorAll("[data-mk]").forEach(b=>b.onclick=()=>{ collect(); openMarkup(+b.dataset.mk); });
   $("#addCam").onclick=()=>$("#phCam").click();
   $("#addGal").onclick=()=>$("#phIn").click();
   el.querySelectorAll("[data-rm]").forEach(b=>b.onclick=async()=>{
@@ -622,6 +690,47 @@ function renderPhotos(){
     else { const ok=await dialog({title:"Remove this photo?",body:"It will be removed from the record when you save.",ok:"Remove",danger:true}); if(!ok) return; draft._removed=(draft._removed||[]).concat([draft.photos[+idx]]); draft.photos.splice(+idx,1); }
     renderPhotos();
   });
+}
+/* ---------- photo markup ---------- */
+function openMarkup(idx){
+  const src=pending[idx]; if(!src) return;
+  const img=new Image(); img.onload=()=>{
+    const max=1600, sc=Math.min(1,max/Math.max(img.naturalWidth,img.naturalHeight));
+    const W=Math.round(img.naturalWidth*sc), H=Math.round(img.naturalHeight*sc);
+    const m=document.createElement("div"); m.className="mk";
+    const cols=["#ff2d2d","#ffd400","#ffffff","#1e88ff"];
+    m.innerHTML=`<div class="mkbar"><button data-t="circle" class="on">◯ Circle</button><button data-t="arrow">➜ Arrow</button><button data-t="pen">✎ Pen</button><button data-t="text">T Text</button>
+      ${cols.map((c,i)=>`<button class="sw ${i?"":"on"}" data-c="${c}" style="background:${c}" aria-label="Colour"></button>`).join("")}
+      <span style="flex:1"></span><button id="mkUndo">↶ Undo</button><button id="mkCancel">Cancel</button><button id="mkDone" style="background:#2f7a3b;border-color:#2f7a3b">✓ Done</button></div>
+      <div class="stage"><canvas></canvas></div><div class="small" style="color:#9fb0bb;text-align:center;padding:6px">Drag on the photo to draw. A marked copy is added – the original photo is kept.</div>`;
+    document.body.appendChild(m);
+    const cv=$("canvas",m); cv.width=W; cv.height=H; const ctx=cv.getContext("2d");
+    let tool="circle", col=cols[0], shapes=[], cur=null; const lw=Math.max(4,Math.round(W/180));
+    const draw=()=>{ ctx.drawImage(img,0,0,W,H); for(const sh of shapes.concat(cur?[cur]:[])) paint(sh); };
+    const paint=sh=>{ ctx.strokeStyle=sh.c; ctx.fillStyle=sh.c; ctx.lineWidth=lw; ctx.lineCap="round"; ctx.lineJoin="round"; ctx.shadowColor="rgba(0,0,0,.6)"; ctx.shadowBlur=lw;
+      if(sh.t==="circle"){ ctx.beginPath(); ctx.ellipse((sh.x0+sh.x1)/2,(sh.y0+sh.y1)/2,Math.abs(sh.x1-sh.x0)/2||1,Math.abs(sh.y1-sh.y0)/2||1,0,0,Math.PI*2); ctx.stroke(); }
+      else if(sh.t==="arrow"){ const a=Math.atan2(sh.y1-sh.y0,sh.x1-sh.x0), hl=lw*5; ctx.beginPath(); ctx.moveTo(sh.x0,sh.y0); ctx.lineTo(sh.x1,sh.y1); ctx.stroke();
+        ctx.beginPath(); ctx.moveTo(sh.x1,sh.y1); ctx.lineTo(sh.x1-hl*Math.cos(a-0.45),sh.y1-hl*Math.sin(a-0.45)); ctx.lineTo(sh.x1-hl*Math.cos(a+0.45),sh.y1-hl*Math.sin(a+0.45)); ctx.closePath(); ctx.fill(); }
+      else if(sh.t==="pen"){ ctx.beginPath(); sh.p.forEach((q,i)=>i?ctx.lineTo(q[0],q[1]):ctx.moveTo(q[0],q[1])); ctx.stroke(); }
+      else if(sh.t==="text"){ const fs=Math.round(W/22); ctx.font=`700 ${fs}px system-ui,sans-serif`; const tw=ctx.measureText(sh.s).width; ctx.shadowBlur=0; ctx.fillStyle="rgba(0,0,0,.6)"; ctx.fillRect(sh.x0-8,sh.y0-fs,tw+16,fs*1.3); ctx.fillStyle=sh.c; ctx.fillText(sh.s,sh.x0,sh.y0); }
+      ctx.shadowBlur=0; };
+    const pt=e=>{ const r=cv.getBoundingClientRect(); return [(e.clientX-r.left)*W/r.width,(e.clientY-r.top)*H/r.height]; };
+    cv.onpointerdown=async e=>{ e.preventDefault(); const [x,y]=pt(e);
+      if(tool==="text"){ const t=await dialog({title:"Add text",input:"Crack",ok:"Add"}); if(t&&t.trim()){ shapes.push({t:"text",c:col,x0:x,y0:y,s:t.trim()}); draw(); } return; }
+      cv.setPointerCapture(e.pointerId); cur={t:tool,c:col,x0:x,y0:y,x1:x,y1:y,p:[[x,y]]}; };
+    cv.onpointermove=e=>{ if(!cur) return; const [x,y]=pt(e); cur.x1=x; cur.y1=y; if(cur.t==="pen") cur.p.push([x,y]); draw(); };
+    cv.onpointerup=()=>{ if(cur){ if(cur.t==="pen"||Math.hypot(cur.x1-cur.x0,cur.y1-cur.y0)>6) shapes.push(cur); cur=null; draw(); } };
+    m.querySelectorAll("[data-t]").forEach(b=>b.onclick=()=>{ tool=b.dataset.t; m.querySelectorAll("[data-t]").forEach(x=>x.classList.toggle("on",x===b)); });
+    m.querySelectorAll("[data-c]").forEach(b=>b.onclick=()=>{ col=b.dataset.c; m.querySelectorAll("[data-c]").forEach(x=>x.classList.toggle("on",x===b)); });
+    $("#mkUndo",m).onclick=()=>{ shapes.pop(); draw(); };
+    $("#mkCancel",m).onclick=()=>m.remove();
+    $("#mkDone",m).onclick=()=>{ if(!shapes.length){ m.remove(); return; } draw(); cv.toBlob(b=>{ if(!b){ toast("Couldn't save the marked photo."); return; }
+      const f=new File([b],(src.file.name||"photo").replace(/\.[^.]+$/,"")+"_marked.jpg",{type:"image/jpeg"});
+      pending.splice(idx+1,0,{file:f,url:URL.createObjectURL(f),caption:src.caption||"",tag:src.tag,gps:src.gps,marked:true});
+      m.remove(); renderPhotos(); toast("Marked copy added"); },"image/jpeg",0.9); };
+    draw();
+  };
+  img.src=src.url;
 }
 async function readGps(file){
   try{ if(!window.exifr) return null; const g=await exifr.gps(file); if(g && isFinite(g.latitude) && isFinite(g.longitude)) return {lat:g.latitude,lng:g.longitude}; }catch(e){}
@@ -653,8 +762,13 @@ async function uploadOnce(b,type){
   try{ return await assets.upload(b, type?{type}:undefined); }
   catch(e){ if(e && e.code==="store_unavailable"){ await new Promise(r=>setTimeout(r,1200)); return await assets.upload(b, type?{type}:undefined); } throw e; }
 }
-function validate(){
+function validate(quick){
   const errs=[]; const d=draft;
+  if(quick){ if(!d.zone) errs.push("zone"); if(!(d.photos.length+pending.length) && !d.observation) errs.push("photos");
+    document.querySelectorAll("[data-err]").forEach(e=>{ e.classList.toggle("hidden", !errs.includes(e.dataset.err)); if(e.dataset.err==="photos") e.textContent=quick?"Add a photo or a note":"Add at least one photo for a defect"; });
+    if(errs.length){ const first=document.querySelector(`[data-err="${errs[0]}"]`); first && first.scrollIntoView({behavior:"smooth",block:"center"}); }
+    return !errs.length; }
+  const pe=document.querySelector('[data-err="photos"]'); if(pe) pe.textContent="Add at least one photo for a defect";
   if(!d.zone) errs.push("zone"); if(!d.plot) errs.push("plot"); if(!d.component) errs.push("component"); if(!d.activity) errs.push("activity"); if(!d.obsType) errs.push("obsType");
   if(d.obsType && DEFECT(d.obsType) && (d.photos.length+pending.length)===0) errs.push("photos");
   document.querySelectorAll("[data-err]").forEach(e=>e.classList.toggle("hidden", !errs.includes(e.dataset.err)));
@@ -672,9 +786,13 @@ async function nextNumber(){
   return no;
 }
 let saving=false;
-async function saveDraft(){
+async function saveDraft(quick){
   if(saving) return; collect();
-  if(!validate()) return;
+  if(!validate(quick)) return;
+  const complete = !!(draft.zone&&draft.plot&&draft.component&&draft.activity&&draft.obsType);
+  if(quick && !draft.obsType) draft.obsType="Info";
+  draft.incomplete = !complete;
+  if(!draft.recordedBy) draft.recordedBy = settings.inspector||"";
   if(pending.length && !assets){ toast("Photo upload isn't available in this view."); return; }
   saving=true; const btn=$("#saveE"); btn.innerHTML='<span class="spin"></span> Saving…'; btn.disabled=true;
   try{
@@ -697,6 +815,7 @@ async function saveDraft(){
       d.history=[{at:stamp, what:"Created"}];
       const ref=db.collection("notes").doc(); d.id=ref.id; const body={...d}; delete body.id;
       await ref.set(body);
+      saveRefs(d);
       lsSet("last",{zone:d.zone,plot:d.plot,asset:d.asset,component:d.component,componentOther:d.componentOther,activity:d.activity,from:d.from,to:d.to,rfi:d.rfi});
       for(const p of removed){ try{ await assets.delete(p.orig); if(p.prev!==p.orig) await assets.delete(p.prev);}catch(e){} }
       pending=[]; saving=false; toast("Saved "+d.no); go({v:"detail",id:d.id});
@@ -708,6 +827,7 @@ async function saveDraft(){
       d.history=(d.history||[]).concat(changed.length?[{at:stamp, what:"Edited: "+changed.join(", ")}]:[]);
       if(d.obsType==="Info" && d.status!=="Void") d.status="Info";
       else if(DEFECT(d.obsType) && ["Info"].includes(d.status)) d.status="Open";
+      saveRefs(d);
       const body={...d}; delete body.id;
       await db.collection("notes").doc(route.id).set(body);
       for(const p of removed){ try{ await assets.delete(p.orig); if(p.prev && p.prev!==p.orig) await assets.delete(p.prev);}catch(e){} }
@@ -743,7 +863,7 @@ function renderDetail(){
   </div>`;
   if((n.photos||[]).length) html+=`<div class="card"><h3>Photos (${n.photos.length})</h3><div class="gal">${n.photos.map((p,i)=>`<figure><img src="${blob(p.prev||p.orig)}" data-full="${esc(p.orig)}" alt="${esc(p.caption||"")}"><figcaption><b>${esc(p.tag||"")}</b>${p.caption?" · "+esc(p.caption):""}</figcaption></figure>`).join("")}</div></div>`;
   html+=`<div class="card"><h3>Details</h3><dl class="dl">
-    ${row("Date / time", esc(fmtDate(n.date)+" "+(n.time||"")))}
+    ${row("Date / time", esc(fmtDate(n.date)+" "+(n.time||"")))}${row("Recorded by", esc(n.recordedBy))}
     ${row("Zone", esc(n.zone))}${row("Plot / line", esc(n.plot))}
     ${row("Component", esc(n.component==="Other"?(n.componentOther||"Other"):n.component))}
     ${n.component==="Pipeline"? row("From → To", esc((n.from||"?")+" → "+(n.to||"?"))) : row("Asset ref", esc(n.asset))}
@@ -761,6 +881,7 @@ function renderDetail(){
     ${row("Action taken", esc(n.actionTaken))}${row("Verified by", esc(n.verifiedBy))}${row("Closed on", esc(fmtDate(n.closedDate)))}
   </dl></div>`;
   if(n.status==="Void") html+=`<div class="banner">Void: ${esc(n.voidReason||"")}</div>`;
+  if(n.incomplete && n.status!=="Void" && canWrite && !archive) html=`<div class="banner" style="display:flex;align-items:center;gap:8px;flex-wrap:wrap"><b>Quick record – details to complete.</b><span style="flex:1"></span><button class="btn sm pri" id="dFinish">Finish details</button></div>`+html;
   const hasB=(n.photos||[]).some(p=>p.tag!=="After"), hasA=(n.photos||[]).some(p=>p.tag==="After");
   html+=`<div class="card"><h3>Share &amp; report</h3><div style="display:flex;gap:8px;flex-wrap:wrap">
     ${(n.photos||[]).length?`<button class="btn pri" id="dShare">📤 Share photo${n.photos.length>1?"s":""}</button>`:`<button class="btn pri" id="dShare">📤 Share details image</button>`}
@@ -787,7 +908,7 @@ function renderDetail(){
   on("#dCollage",()=>shareRecord(n,"collage"));
   on("#dCopy",()=>copyText(n));
   on("#dPdf",()=>pdfRecords([n], n.no));
-  on("#dEdit",()=>startEdit(n.id));
+  on("#dEdit",()=>startEdit(n.id)); on("#dFinish",()=>startEdit(n.id));
   on("#dNext",()=>setStatus(n, FLOW[idx+1]));
   on("#dClose",()=>closeRecord(n));
   on("#dReopen",async()=>{ const r=await dialog({title:"Re-open "+n.no+"?",body:"Give a reason. It's kept in the history.",input:"Defect reappeared",ok:"Re-open"}); if(r) await writeStatus(n,{status:"Re-inspected",closedDate:""},"Re-opened: "+r); });
@@ -834,7 +955,9 @@ function closeRecord(n){
 let downloads=null;
 async function getBlob(id){
   if(id && String(id).startsWith("zip:")){ const u=zipUrls[id.slice(4)]; if(!u) throw new Error("missing"); return await (await fetch(u)).blob(); }
-  const b=await IDB.get("files",id); if(!b) throw new Error("missing"); return b;
+  const b=await IDB.get("files",id); if(b) return b;
+  if(PC){ return await (await pcApi("files/"+encodeURIComponent(id),{timeout:60000})).blob(); }
+  throw new Error("missing");
 }
 async function loadImg(id){
   const b=await getBlob(id); const u=URL.createObjectURL(b);
@@ -866,6 +989,7 @@ function shareText(n){
   infoLines(n).forEach(([k,v])=>lines.push((k?k+" ":"")+v));
   if(n.gps) lines.push(`Map: https://www.google.com/maps?q=${n.gps.lat},${n.gps.lng}`);
   else if(n.mapLink) lines.push("Map: "+n.mapLink);
+  if(n.recordedBy) lines.push("Recorded by: "+n.recordedBy);
   lines.push("", settings.project.replace(/\n/g,", ")+(settings.company?" – "+settings.company:""));
   return lines.join("\n");
 }
@@ -888,7 +1012,7 @@ async function buildImage(n, photos, mode, idx, total){
   // strip layout first (measure)
   ctx.font="30px system-ui,sans-serif";
   const lines=[]; for(const [k,v] of infoLines(n)){ const wl=wrapText(ctx,(k?k+" ":"")+v,W-2*P); wl.forEach((t,i)=>lines.push({t,k:i===0?k:""})); }
-  const foot=settings.project.split("\n").concat(settings.company?[settings.company]:[]);
+  const foot=(n.recordedBy?["Recorded by "+n.recordedBy+(settings.company?" · "+settings.company:"")]:(settings.company?[settings.company]:[])).concat(settings.project.split("\n"));
   const stripH = P + 50 + 16 + lines.length*42 + 24 + foot.length*30 + P;
   let photoH=0;
   if(mode==="collage") photoH=640;
@@ -967,7 +1091,7 @@ async function imgData(id,max=1000){
   const c=document.createElement("canvas"); c.width=Math.round(im.naturalWidth*s); c.height=Math.round(im.naturalHeight*s);
   c.getContext("2d").drawImage(im,0,0,c.width,c.height); return {url:c.toDataURL("image/jpeg",0.82), w:c.width, h:c.height};
 }
-async function pdfRecords(list, name, title){
+async function pdfRecords(list, name, title, shareMsg){
   toast("Preparing PDF…",2000);
   try{ await loadJsPdf(); }catch(e){ toast("Couldn't load the PDF tool. Check your connection."); return; }
   const { jsPDF } = window.jspdf; const doc=new jsPDF({unit:"mm",format:"a4"});
@@ -986,7 +1110,7 @@ async function pdfRecords(list, name, title){
     y+=7; doc.setFontSize(12); const hl=doc.splitTextToSize(pdfSafe(headline(n)),CW); doc.text(hl,M,y); y+=hl.length*5.5+2;
     const rows=[["Date / time",fmtDate(n.date)+" "+(n.time||"")],["Zone",n.zone],["Plot / line",n.plot],["Component",compName(n)],
       n.component==="Pipeline"?["From -> To",(n.from||"?")+" -> "+(n.to||"?")]:["Asset ref",n.asset],["Activity",n.activity],["Observation type",(n.obsType||"")+(n.severity?" ("+n.severity+")":"")],
-      ["Observation",n.observation],["Location",n.gps?`${n.gps.lat.toFixed(6)}, ${n.gps.lng.toFixed(6)}`:(n.mapLink||"")],["RFI no.",n.rfi],["Drawing / rev",n.drawing],["ITP / clause",n.itp],["Contractor rep",n.contractorRep],
+      ["Observation",n.observation],["Location",n.gps?`${n.gps.lat.toFixed(6)}, ${n.gps.lng.toFixed(6)}`:(n.mapLink||"")],["RFI no.",n.rfi],["Drawing / rev",n.drawing],["ITP / clause",n.itp],["Contractor rep",n.contractorRep],["Recorded by",n.recordedBy],
       ["Weather",n.weather],["Ground",n.ground],["Measurements",n.measurements]];
     if(DEFECT(n.obsType)) rows.push(["Action required",n.actionRequired],["Responsible",n.responsible],["Target date",fmtDate(n.dueDate)],["NCR / SOR",n.ncrType&&n.ncrType!=="None"?ncrLabel(n):""],["Action taken",n.actionTaken],["Verified by",n.verifiedBy],["Closed on",fmtDate(n.closedDate)]);
     if(n.status==="Void") rows.push(["Void reason",n.voidReason]);
@@ -1010,10 +1134,20 @@ async function pdfRecords(list, name, title){
   }
   const pages=doc.getNumberOfPages();
   for(let i=1;i<=pages;i++){ doc.setPage(i); doc.setFontSize(8); doc.setTextColor(130); doc.text(pdfSafe(proj.join(", ")),M,290); doc.text(`Page ${i} of ${pages}`,PW-M,290,{align:"right"}); }
-  const ok=await saveFile(`${name}.pdf`, doc.output("blob"));
+  const ok=await saveFile(`${name}.pdf`, doc.output("blob"), shareMsg);
   if(ok) toast("PDF ready");
 }
 
+async function dayReport(){
+  const d=today(); const L=liveNotes.filter(n=>n.date===d && n.status!=="Void" && (zone==="All"||n.zone===zone)).sort((a,b)=>(a.time||"").localeCompare(b.time||""));
+  if(!L.length){ toast("No records today"+(zone!=="All"?" in zone "+zone:"")+"."); return; }
+  const c=counts(L); const by=settings.inspector?` – ${settings.inspector}`:"";
+  const zs=[...new Set(L.map(n=>n.zone))].join(", ");
+  const text=[`*Daily site report – ${fmtDate(d)}*${by}`, `Zones: ${zs}`, `Records: ${L.length} · Defects raised: ${L.filter(n=>DEFECT(n.obsType)).length} · Info: ${c.info}`,
+    ...L.map(n=>`• ${n.no} – ${n.zone} ${n.plot||""} – ${headline(n)} [${statusInfo(n).t}]`), "", settings.project.replace(/\n/g,", ")].join("\n");
+  try{ navigator.clipboard && navigator.clipboard.writeText(text).catch(()=>{}); }catch(e){}
+  await pdfRecords(L,`Daily_Report_${d}${zone!=="All"?"_"+zone:""}`,`Daily site report – ${fmtDate(d)}${zone!=="All"?" – Zone "+zone:""}`, text);
+}
 /* ---------- transfer to PC, archive, reports ---------- */
 const libP={};
 function loadLib(url,check){ if(check()) return Promise.resolve(); if(!libP[url]) libP[url]=new Promise((res,rej)=>{ const s=document.createElement("script"); s.src=url; s.onload=res; s.onerror=()=>{ delete libP[url]; rej(new Error(url)); }; document.head.appendChild(s); }); return libP[url]; }
@@ -1192,12 +1326,15 @@ function renderPC(){
   const list=(key,label,hint)=>`<div class="fld"><label>${label}</label><textarea id="s_${key}" style="min-height:90px">${esc((settings[key]||[]).join("\n"))}</textarea><div class="small muted">${hint}</div></div>`;
   const assetsTxt = settings.zones.map(z=>`${z}: ${((settings.assets||{})[z]||[]).join(", ")}`).join("\n");
   $("#view").innerHTML=`
+  ${pcCardHtml()}
   <div class="card"><h3>App version</h3><div class="small muted" style="margin-bottom:8px">Site Notes ${APP_VERSION}</div>
     ${updateReady?`<button class="btn pri" id="updBtn2">Update now</button>`:`<button class="btn" id="chkUpd">Check for updates</button>`}</div>
   ${isStandalone()?"":`<div class="card"><h3>Install app</h3><div class="small muted" style="margin-bottom:8px">Put Site Notes on your home screen.</div><button class="btn" id="instShow">Show install steps</button></div>`}
   <div class="card"><h3>Project</h3>
     <div class="fld"><label>Project name (footer)</label><textarea id="s_project">${esc(settings.project)}</textarea></div>
+    <div class="fld"><label>Your name (shown on records, photos and reports)</label><input id="s_inspector" value="${esc(settings.inspector||"")}" placeholder="Engr Luqman"></div>
     <div class="fld"><label>Company / consultant (optional)</label><input id="s_company" value="${esc(settings.company)}"></div>
+    <label class="small" style="display:flex;gap:8px;align-items:center"><input type="checkbox" id="s_cam" style="width:auto" ${settings.cameraFirst!==false?"checked":""}> Open the camera straight away when I tap ＋ New record</label>
   </div>
   <div class="card"><h3>Lists</h3>
     ${list("zones","Zones","One per line.")}
@@ -1208,20 +1345,21 @@ function renderPC(){
     <div class="small muted">One zone per line: <code>1B-2: MH-12, MH-13, BPC-07, HCC-114</code>. These show as suggestions when you type the asset ref.</div></div>
     <button class="btn pri" id="sSave">Save settings</button>
   </div>`;
+  bindPcCard();
   const cu=$("#chkUpd"); if(cu) cu.onclick=checkUpdate; const u2=$("#updBtn2"); if(u2) u2.onclick=applyUpdate;
   const isw=$("#instShow"); if(isw) isw.onclick=()=>{ lsSet("installHide",false); lsSet("installDone",false); lastTab="home"; go({v:"home"}); };
   $("#sSave").onclick=async()=>{
     const lines=id=>$(id).value.split("\n").map(s=>s.trim()).filter(Boolean);
     const zones=lines("#s_zones"); if(!zones.length){ toast("Keep at least one zone."); return; }
     const assetsMap={}; $("#s_assets").value.split("\n").forEach(l=>{ const i=l.indexOf(":"); if(i<1) return; const z=l.slice(0,i).trim(); const a=l.slice(i+1).split(/[,;]/).map(s=>s.trim()).filter(Boolean); if(a.length) assetsMap[z]=a; });
-    settings={...settings, project:$("#s_project").value.trim()||PROJECT_DEFAULT, company:$("#s_company").value.trim(), zones, components:lines("#s_components"), activities:lines("#s_activities"), responsible:lines("#s_responsible"), assets:assetsMap};
+    settings={...settings, project:$("#s_project").value.trim()||PROJECT_DEFAULT, company:$("#s_company").value.trim(), inspector:$("#s_inspector").value.trim(), cameraFirst:$("#s_cam").checked, zones, components:lines("#s_components"), activities:lines("#s_activities"), responsible:lines("#s_responsible"), assets:assetsMap};
     await saveSettings(); toast("Settings saved");
   };
 }
 async function saveSettings(){ if(!db) return; try{ await db.doc("settings/main").set(settings); }catch(e){ toast("Couldn't save settings."); } }
 
 /* ---------- install card ---------- */
-let installEvt=null; let updateReady=false; const APP_VERSION="1.2 (17 Nov 2026)";
+let installEvt=null; let updateReady=false; const APP_VERSION="1.3 (17 Nov 2026)";
 const isStandalone=()=> (window.matchMedia && matchMedia("(display-mode: standalone)").matches) || navigator.standalone===true;
 const isIOS=()=> /iphone|ipad|ipod/i.test(navigator.userAgent) || (navigator.platform==="MacIntel" && navigator.maxTouchPoints>1);
 window.addEventListener("beforeinstallprompt",e=>{ e.preventDefault(); installEvt=e; if(route.v==="home") render(); });
@@ -1265,7 +1403,7 @@ function notify(path){ subs.forEach(l=>{ if(l.type==="doc"? l.path===path : path
 const localDb={
   doc(p){ return { id:p.split("/").pop(), path:p,
     async get(){ return snapOf(p, await IDB.get("docs",p)); },
-    async set(d){ await IDB.put("docs",p,JSON.parse(JSON.stringify(d))); notify(p); },
+    async set(d){ const v=JSON.parse(JSON.stringify(d)); if(p.startsWith("notes/")||p==="settings/main") v._dirty=true; await IDB.put("docs",p,v); notify(p); if(PC) setTimeout(()=>syncNow(),300); },
     async delete(){ await IDB.del("docs",p); notify(p); },
     onSnapshot(cb){ const l={type:"doc",path:p,cb}; subs.push(l); fire(l); return ()=>{ const i=subs.indexOf(l); if(i>=0) subs.splice(i,1); }; } }; },
   collection(cp){ return { path:cp, doc(id){ return localDb.doc(cp+"/"+(id||uid())); },
@@ -1276,9 +1414,140 @@ const localAssets={
   async delete(id){ await IDB.del("files",id); if(urlCache[id]){ URL.revokeObjectURL(urlCache[id]); delete urlCache[id]; } return {deleted:true}; }
 };
 async function preloadPreviews(list){
-  for(const n of list) for(const p of n.photos||[]){ const id=p.prev||p.orig; if(id && !urlCache[id] && !String(id).startsWith("zip:")){ try{ const b=await IDB.get("files",id); if(b) urlCache[id]=URL.createObjectURL(b); }catch(e){} } }
+  const remote=[];
+  for(const n of list) for(const p of n.photos||[]){ const id=p.prev||p.orig; if(id && !urlCache[id] && !String(id).startsWith("zip:")){ try{ const b=await IDB.get("files",id); if(b) urlCache[id]=URL.createObjectURL(b); else remote.push(id); }catch(e){} } }
+  if(remote.length && PC) loadRemote(remote);
 }
-function unsentInfo(){ const L=liveNotes.filter(needsTransfer); const oldest=L.map(n=>n.createdAt||"").sort()[0]; return {count:L.length, oldest}; }
+/* photos kept on the PC are shown from there (held in memory only, not saved on the phone) */
+const remoteTried=new Set(); let remoteBusy=false; const remoteQ=[];
+async function loadRemote(ids){
+  ids.forEach(id=>{ if(!remoteTried.has(id)){ remoteTried.add(id); remoteQ.push(id); } });
+  if(remoteBusy) return; remoteBusy=true; let got=0;
+  try{
+    while(remoteQ.length){
+      const batch=remoteQ.splice(0,3);
+      await Promise.all(batch.map(async id=>{ try{ const b=await (await pcApi("files/"+encodeURIComponent(id),{timeout:45000})).blob(); urlCache[id]=URL.createObjectURL(b); got++; }catch(e){ remoteTried.delete(id); } }));
+      if(got && route.v!=="edit"){ got=0; render(); }
+    }
+  } finally { remoteBusy=false; }
+}
+
+/* ---------- link with the PC (Site Notes PC) ---------- */
+const GH_URL="https://engrluqmanaji-glitch.github.io/site-notes/";
+let PC=lsGet("pc",null);
+const isPcHost=/^(localhost|127\.0\.0\.1)$/.test(location.hostname) && location.port==="8765";
+const pcState={st:PC?"wait":"off", at:"", pending:0, info:null};
+(function readLink(){
+  const h=location.hash||""; if(!h.startsWith("#pc=")) return;
+  const q=new URLSearchParams(h.slice(1)); const url=(q.get("pc")||"").trim().replace(/\/+$/,""); const key=(q.get("k")||"").trim();
+  if(/^https?:\/\//.test(url) && key){ PC={url,key}; lsSet("pc",PC); pcState.st="wait"; pcState.justLinked=true; }
+  try{ history.replaceState(null,"",location.pathname+location.search); }catch(e){}
+})();
+async function pcApi(path,opt={}){
+  const ctl=new AbortController(); const t=setTimeout(()=>ctl.abort(), opt.timeout||20000);
+  try{
+    const h={"X-Key":PC.key}; if(opt.type) h["Content-Type"]=opt.type;
+    const r=await fetch(PC.url+"/api/"+path,{method:opt.method||"GET",headers:h,body:opt.body,signal:ctl.signal,cache:"no-store"});
+    if(r.status===401){ const e=new Error("Wrong PC key"); e.code="key"; throw e; }
+    if(!r.ok) throw new Error("PC answered "+r.status);
+    return r;
+  } finally { clearTimeout(t); }
+}
+const isDirty=v=>v && v._dirty!==false;
+let syncing=false, syncAgain=false;
+async function syncNow(manual){
+  if(!PC || !IDB.db) return;
+  if(syncing){ syncAgain=true; return; }
+  syncing=true; pcState.st="sync"; paintSync();
+  let changedNotes=false, changedSettings=false, sent=0;
+  try{
+    pcState.info=await (await pcApi("ping",{timeout:12000})).json();
+    const sd=await IDB.get("docs","settings/main");
+    if(sd && isDirty(sd)){ const b={...sd}; delete b._dirty; await pcApi("settings",{method:"PUT",type:"application/json",body:JSON.stringify(b)}); const cur=await IDB.get("docs","settings/main"); if(cur && JSON.stringify(cur)===JSON.stringify(sd)) await IDB.put("docs","settings/main",{...cur,_dirty:false}); }
+    const rows=(await IDB.entries("docs","notes/")).filter(([k,v])=>isDirty(v));
+    for(const [k,v] of rows){
+      const id=k.split("/").pop(); const ids=new Set();
+      (v.photos||[]).forEach(p=>{ if(p.orig) ids.add(p.orig); if(p.prev) ids.add(p.prev); });
+      for(const fid of ids){ const b=await IDB.get("files",fid); if(b) await pcApi("files/"+encodeURIComponent(fid),{method:"PUT",type:b.type||"image/jpeg",body:b,timeout:180000}); }
+      const body={...v,id}; delete body._dirty;
+      const res=await (await pcApi("notes/"+encodeURIComponent(id),{method:"PUT",type:"application/json",body:JSON.stringify(body),timeout:60000})).json();
+      const cur=await IDB.get("docs",k);
+      if(cur){ const same=JSON.stringify(cur)===JSON.stringify(v); const nv={...cur}; if(res.no) nv.no=res.no; if(same) nv._dirty=false; await IDB.put("docs",k,nv); }
+      if(!isPcHost) for(const fid of ids){ try{ await IDB.del("files",fid); }catch(e){} }
+      changedNotes=true; sent++;
+    }
+    const remote=await (await pcApi("notes",{timeout:90000})).json();
+    for(const r of (remote||[])){
+      if(!r || !r.id) continue; const k="notes/"+r.id; const cur=await IDB.get("docs",k);
+      if(cur && isDirty(cur)) continue;
+      const v={...r}; delete v.id; v._dirty=false;
+      if(!cur || JSON.stringify(cur)!==JSON.stringify(v)){ await IDB.put("docs",k,v); changedNotes=true; }
+    }
+    const rs=await (await pcApi("settings")).json();
+    const ls=await IDB.get("docs","settings/main");
+    if(rs && !(ls && isDirty(ls))){ const v={...rs,_dirty:false}; if(!ls || JSON.stringify(ls)!==JSON.stringify(v)){ await IDB.put("docs","settings/main",v); changedSettings=true; } }
+    pcState.st="ok"; pcState.at=new Date().toISOString();
+    if(manual) toast(sent?`Sent ${sent} record${sent>1?"s":""} to PC`:"All saved on PC");
+    if(pcState.justLinked){ pcState.justLinked=false; toast("Linked with your PC ✓"); }
+  }catch(e){
+    pcState.st = e.code==="key" ? "key" : (navigator.onLine===false ? "offline" : "down");
+    if(manual) toast(pcState.st==="key"?"PC link key is wrong – link again from the PC.":navigator.onLine===false?"No internet – records will be sent automatically.":"Can't reach the PC – is it switched on?");
+  }finally{
+    syncing=false;
+    try{ pcState.pending=(await IDB.entries("docs","notes/")).filter(([k,v])=>isDirty(v)).length; }catch(e){}
+    if(changedNotes) notify("notes/_sync"); if(changedSettings) notify("settings/main");
+    paintSync();
+    if(syncAgain){ syncAgain=false; setTimeout(()=>syncNow(),400); }
+  }
+}
+function syncText(){
+  const n=pcState.pending, w=n?` · ${n} waiting`:"";
+  switch(pcState.st){
+    case "off": return {c:"#8a5300", t:"Not linked with your PC yet – Settings › Link with PC"};
+    case "wait": case "sync": return {c:"#14324d", t:"Sending to PC…"+w};
+    case "ok": return n?{c:"#8a5300",t:`${n} waiting to send`}:{c:"#2f7a3b", t:"✓ All saved on your PC"+(pcState.at?" · "+new Date(pcState.at).toLocaleTimeString("en-GB",{hour:"2-digit",minute:"2-digit"}):"")};
+    case "offline": return {c:"#8a5300", t:"No signal"+w+" – will send automatically"};
+    case "down": return {c:"#b42e2e", t:"PC not reachable"+w+" – is the PC on?"};
+    case "key": return {c:"#b42e2e", t:"PC link key is wrong – link again"};
+  }
+  return {c:"#555",t:""};
+}
+function paintSync(){
+  const el=$("#syncLine"); if(el){ const x=syncText(); el.style.color=x.c; el.innerHTML=`${ic("send","sm")} ${esc(x.t)}`; }
+  const st=$("#pcStatus"); if(st){ const x=syncText(); st.style.color=x.c; st.textContent=x.t; }
+  const qs=$("#qaSend .cnt"); if(qs) qs.textContent=pcState.pending||""; 
+}
+function pcCardHtml(){
+  if(isPcHost){
+    const pub=pcState.info&&pcState.info.publicUrl; const link=pub&&PC?`${GH_URL}#pc=${encodeURIComponent(pub)}&k=${PC.key}`:"";
+    return `<div class="card"><h3>Link your phone</h3>
+      <div class="small" id="pcStatus"></div>
+      <div class="small muted" style="margin:6px 0 10px">Records are saved in <b>${esc((pcState.info&&pcState.info.folder)||"D:\\SITE NOTES APP RECORD")}</b>.</div>
+      ${link?`<div class="small" style="margin-bottom:8px">Send this link to <b>yourself</b> on WhatsApp and open it on your phone – the phone app then sends everything here.</div>
+        <div class="fld"><input id="phLink" readonly value="${esc(link)}"></div>
+        <div style="display:flex;gap:8px;flex-wrap:wrap"><button class="btn pri" id="phCopy">Copy phone link</button><a class="btn" target="_blank" rel="noopener" href="https://wa.me/?text=${encodeURIComponent("Site Notes – link my phone to my PC: "+link)}">Send on WhatsApp</a></div>
+        <div class="small muted" style="margin-top:8px">Keep this link private – it is the key to your records.</div>`
+      :`<div class="banner">The phone link isn't ready yet. Install <b>Tailscale</b> on this PC, sign in, then double-click <b>Start Site Notes PC</b> again.</div>`}
+    </div>`;
+  }
+  return `<div class="card"><h3>Link with PC</h3>
+    ${PC?`<div class="small" id="pcStatus"></div><div class="small muted" style="margin:6px 0 10px">Records and photos go straight to your PC and are removed from this phone once sent.</div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap"><button class="btn pri" id="pcSync">Sync now</button><button class="btn" id="pcUnlink">Unlink</button></div>`
+    :`<div class="small muted" style="margin-bottom:8px">On your PC open <b>Site Notes PC</b> › Settings › <b>Send on WhatsApp</b>, then open that link on this phone. Or paste the link here:</div>
+      <div class="fld"><input id="pcPaste" placeholder="Paste the phone link from your PC"></div><button class="btn pri" id="pcLinkBtn">Link</button>`}
+  </div>`;
+}
+function bindPcCard(){
+  const on=(id,f)=>{ const e=$(id); if(e) e.onclick=f; };
+  on("#phCopy",()=>{ const i=$("#phLink"); i.select(); try{ navigator.clipboard.writeText(i.value).then(()=>toast("Phone link copied")); }catch(e){ document.execCommand("copy"); toast("Phone link copied"); } });
+  on("#pcSync",()=>syncNow(true));
+  on("#pcUnlink",async()=>{ const ok=await dialog({title:"Unlink this phone?",body:"Records already on the PC stay there. New records will stay on this phone until you link again.",ok:"Unlink"}); if(!ok) return; PC=null; lsSet("pc",null); pcState.st="off"; render(); });
+  on("#pcLinkBtn",()=>{ const v=$("#pcPaste").value.trim(); const i=v.indexOf("#pc="); if(i<0){ toast("That doesn't look like the phone link."); return; }
+    const q=new URLSearchParams(v.slice(i+1)); const url=(q.get("pc")||"").replace(/\/+$/,""), key=q.get("k")||""; if(!url||!key){ toast("That doesn't look like the phone link."); return; }
+    PC={url,key}; lsSet("pc",PC); pcState.st="wait"; pcState.justLinked=true; render(); syncNow(); });
+  paintSync();
+}
+function unsentInfo(){ if(PC) return {count:pcState.pending, oldest:""}; const L=liveNotes.filter(needsTransfer); const oldest=L.map(n=>n.createdAt||"").sort()[0]; return {count:L.length, oldest}; }
 
 /* ---------- boot ---------- */
 setupShell();
@@ -1296,6 +1565,10 @@ render();
       if(!archive) notes=liveNotes;
       loaded=true; if(route.v!=="edit") render();
     });
+    if(PC){ setTimeout(()=>syncNow(),800); }
+    window.addEventListener("online",()=>syncNow());
+    document.addEventListener("visibilitychange",()=>{ if(document.visibilityState==="visible") syncNow(); });
+    setInterval(()=>{ if(PC && pcState.pending) syncNow(); else if(PC) syncNow(); }, 90*1000);
   }catch(e){ console.error(e); loaded=true; loadNote="Couldn't open the app's storage. Close and reopen the app."; render(); }
 })();
 /* ---------- app updates ---------- */
