@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Download Site Notes</title>
+<link rel="icon" href="icon-aji-192.png">
+<meta name="theme-color" content="#14324d">
+<style>
+*{box-sizing:border-box}
+body{margin:0;background:#f3f4f6;font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;color:#16202a;min-height:100vh;display:flex;flex-direction:column}
+.top{background:#14324d;color:#fff;padding:28px 20px 30px;text-align:center}
+.top img{width:96px;height:96px;border-radius:22px;display:block;margin:0 auto 14px}
+.top h1{margin:0;font-size:30px}
+.top p{margin:6px 0 0;color:#c9d4de;font-size:14px;line-height:1.4}
+main{flex:1;max-width:460px;width:100%;margin:0 auto;padding:22px 18px 30px}
+.btn{display:block;text-align:center;text-decoration:none;background:#e8a33d;color:#1d1406;font-weight:800;font-size:22px;border-radius:18px;padding:20px 14px;box-shadow:0 8px 20px rgba(232,163,61,.4)}
+.btn small{display:block;font-weight:600;font-size:13px;margin-top:4px;color:#4a3410}
+.btn2{display:block;text-align:center;text-decoration:none;background:#fff;color:#14324d;border:2px solid #14324d;font-weight:700;font-size:16px;border-radius:14px;padding:13px;margin-top:12px}
+.card{background:#fff;border:1px solid #e2e7ec;border-radius:16px;padding:16px 18px;margin-top:18px;font-size:15px;line-height:1.55}
+.card h2{margin:0 0 6px;font-size:16px;color:#14324d}
+.card ol{margin:0;padding-left:20px}
+.hide{display:none}
+.foot{text-align:center;color:#6b7785;font-size:12px;padding:14px}
+</style>
+</head>
+<body>
+<div class="top">
+  <img src="icon-aji-192.png" alt="">
+  <h1>Site Notes</h1>
+  <p>Wastewater Network System · Package 1A, 1B &amp; 1C<br>Masirah Island</p>
+</div>
+<main>
+  <div id="android">
+    <a class="btn" href="SiteNotes.apk" download="SiteNotes.apk">⬇ Download app<small>Android · 1 MB</small></a>
+    <div class="card"><h2>Install (first time only)</h2>
+      <ol>
+        <li>Tap <b>Download app</b>, then open <b>SiteNotes.apk</b>.</li>
+        <li>If asked, tap <b>Settings</b> → allow <b>install unknown apps</b> → go back.</li>
+        <li>Tap <b>Install</b> → <b>Open</b>. The AJi icon is now on your home screen.</li>
+      </ol>
+    </div>
+    <a class="btn2" href="./">Or open Site Notes in the browser</a>
+  </div>
+  <div id="ios" class="hide">
+    <a class="btn" href="./">Open Site Notes<small>iPhone</small></a>
+    <div class="card"><h2>Add to Home Screen (iPhone)</h2>
+      <ol>
+        <li>Open this page in <b>Safari</b>.</li>
+        <li>Tap <b>Open Site Notes</b>, then the <b>Share</b> button ⬆.</li>
+        <li>Choose <b>Add to Home Screen</b> → <b>Add</b>.</li>
+      </ol>
+    </div>
+  </div>
+</main>
+<div class="foot">Engr Luqman · Site Notes</div>
+<script>
+if (/iphone|ipad|ipod/i.test(navigator.userAgent) || (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1)) {
+  document.getElementById("android").classList.add("hide");
+  document.getElementById("ios").classList.remove("hide");
+}
+</script>
+</body>
+</html>
