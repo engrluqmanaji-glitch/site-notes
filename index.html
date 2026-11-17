@@ -1,0 +1,1325 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Site Notes – Masirah WWN</title>
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#14324d">
+<link rel="icon" href="icon-192.png">
+<link rel="apple-touch-icon" href="icon-192.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Site Notes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<style>
+:root{--bg:#f3f5f7;--card:#fff;--ink:#16202a;--mut:#5d6b78;--line:#dde3e8;--pri:#14324d;--pri2:#1f4f7a;--acc:#e8a33d;
+--open:#b7791f;--openbg:#fdf3e1;--ok:#2f7a3b;--okbg:#e6f3e7;--bad:#b42e2e;--badbg:#fbe6e6;--info:#1f5fa8;--infobg:#e4effa;--void:#777;--voidbg:#eee;
+--r:10px;--safe-top:env(safe-area-inset-top,0px);--safe-bot:env(safe-area-inset-bottom,0px)}
+*{box-sizing:border-box}
+html,body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.45 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;-webkit-text-size-adjust:100%}
+button,input,select,textarea{font:inherit;color:inherit}
+header{position:sticky;top:0;z-index:20;background:var(--pri);color:#fff;padding:calc(10px + var(--safe-top)) 14px 10px}
+header .row{display:flex;align-items:center;gap:10px}
+header h1{font-size:17px;margin:0;font-weight:600;flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+header .sub{font-size:11.5px;opacity:.75;margin-top:2px}
+.hbtn{background:rgba(255,255,255,.12);border:0;color:#fff;border-radius:8px;padding:7px 10px;cursor:pointer;display:inline-flex;align-items:center;gap:6px;font-size:13px}
+.hbtn:active{background:rgba(255,255,255,.25)}
+main{max-width:900px;margin:0 auto;padding:12px 12px calc(90px + var(--safe-bot))}
+.zones{display:flex;gap:6px;overflow-x:auto;padding:10px 12px;background:#fff;border-bottom:1px solid var(--line);scrollbar-width:none}
+.zones::-webkit-scrollbar{display:none}
+.zchip{flex:0 0 auto;border:1px solid var(--line);background:#fff;border-radius:20px;padding:6px 12px;font-size:13.5px;cursor:pointer;white-space:nowrap}
+.zchip.on{background:var(--pri);color:#fff;border-color:var(--pri)}
+.zchip .n{font-size:11px;opacity:.8;margin-left:4px}
+.stats{display:grid;grid-template-columns:repeat(5,1fr);gap:8px;margin:4px 0 12px}
+.stat{background:var(--card);border:1px solid var(--line);border-radius:var(--r);padding:8px 4px;text-align:center;cursor:pointer;user-select:none}
+.stat b{display:block;font-size:20px;line-height:1.2}
+.stat span{font-size:11.5px;color:var(--mut)}
+.stat.on{outline:2px solid var(--pri2)}
+@media(max-width:420px){.stats{grid-template-columns:repeat(3,1fr)}.stat:nth-child(n+4){}}
+.tools{display:flex;gap:8px;margin-bottom:10px;flex-wrap:wrap}
+.tools input[type=search]{flex:1;min-width:160px}
+.fbar{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:10px}
+.fbar select,.fbar input{font-size:13px;padding:6px 8px}
+input,select,textarea{border:1px solid #c9d2da;border-radius:8px;padding:9px 10px;background:#fff;width:100%}
+textarea{min-height:70px;resize:vertical}
+input:focus,select:focus,textarea:focus{outline:2px solid #7fb0dc;border-color:#7fb0dc}
+.btn{border:1px solid #c9d2da;background:#fff;border-radius:8px;padding:9px 14px;cursor:pointer;display:inline-flex;align-items:center;gap:6px;justify-content:center}
+.btn:active{transform:scale(.98)}
+.btn.pri{background:var(--pri);border-color:var(--pri);color:#fff}
+.btn.acc{background:var(--acc);border-color:var(--acc);color:#1d1406;font-weight:600}
+.btn.danger{color:var(--bad);border-color:#e3b4b4}
+.btn.sm{padding:6px 10px;font-size:13px}
+.list{display:flex;flex-direction:column;gap:8px}
+.rec{background:var(--card);border:1px solid var(--line);border-radius:var(--r);padding:10px 12px;cursor:pointer;display:flex;gap:10px}
+.rec:active{background:#f7f9fb}
+.rec .main{flex:1;min-width:0}
+.rec .top{display:flex;justify-content:space-between;gap:8px;align-items:center}
+.rec .no{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:12px;color:var(--mut)}
+.rec .t{font-weight:600;margin:2px 0}
+.rec .m{font-size:13px;color:var(--mut);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.rec .thumb{width:64px;height:64px;border-radius:8px;object-fit:cover;background:#e9eef2;flex:0 0 64px}
+.badge{display:inline-block;font-size:11.5px;padding:2px 8px;border-radius:12px;white-space:nowrap;font-weight:600}
+.b-open{background:var(--openbg);color:var(--open)}.b-closed{background:var(--okbg);color:var(--ok)}
+.b-bad{background:var(--badbg);color:var(--bad)}.b-info{background:var(--infobg);color:var(--info)}.b-void{background:var(--voidbg);color:var(--void)}
+.b-minor{background:#fff1d6;color:#8a5a00}.b-ok{background:var(--okbg);color:var(--ok)}
+.overdue{color:var(--bad);font-weight:600}
+.fab{position:fixed;right:16px;bottom:calc(18px + var(--safe-bot));z-index:30;display:flex;gap:8px}
+.fab .btn{box-shadow:0 4px 14px rgba(0,0,0,.18);border-radius:28px;padding:13px 18px;font-weight:600}
+.empty{text-align:center;color:var(--mut);padding:40px 10px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:var(--r);padding:12px 14px;margin-bottom:10px}
+.card h3{margin:0 0 8px;font-size:14px;color:var(--pri)}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.fld{margin-bottom:10px}
+.fld label{display:block;font-size:12.5px;color:var(--mut);margin-bottom:4px;font-weight:600}
+.fld label .req{color:var(--bad)}
+.chips{display:flex;flex-wrap:wrap;gap:6px}
+.chip{border:1px solid #c9d2da;background:#fff;border-radius:18px;padding:6px 11px;font-size:13.5px;cursor:pointer}
+.chip.on{background:var(--pri);color:#fff;border-color:var(--pri)}
+.chip.t-bad.on{background:var(--bad);border-color:var(--bad)}
+.chip.t-info.on{background:var(--info);border-color:var(--info)}
+.chip.t-ok.on{background:var(--ok);border-color:var(--ok)}
+.chip.t-minor.on{background:#c98300;border-color:#c98300}
+.err{color:var(--bad);font-size:12.5px;margin-top:4px}
+.photos{display:grid;grid-template-columns:repeat(auto-fill,minmax(110px,1fr));gap:8px}
+.ph{border:1px solid var(--line);border-radius:8px;overflow:hidden;background:#fafbfc;position:relative}
+.ph img{width:100%;height:100px;object-fit:cover;display:block;background:#e9eef2}
+.ph .cap{padding:5px}
+.ph .cap input{font-size:12px;padding:5px 6px}
+.ph .cap select{font-size:12px;padding:4px 6px;margin-top:4px}
+.ph .x{position:absolute;top:4px;right:4px;background:rgba(0,0,0,.6);color:#fff;border:0;border-radius:14px;width:26px;height:26px;cursor:pointer}
+.ph .tag{position:absolute;top:4px;left:4px;background:rgba(0,0,0,.6);color:#fff;font-size:11px;padding:1px 6px;border-radius:8px}
+.addph{border:2px dashed #b9c4ce;border-radius:8px;min-height:100px;display:flex;flex-direction:column;align-items:center;justify-content:center;color:var(--mut);cursor:pointer;font-size:13px;gap:4px;background:#fff}
+.dl{display:grid;grid-template-columns:130px 1fr;gap:4px 10px;font-size:14px}
+.dl dt{color:var(--mut)}.dl dd{margin:0;white-space:pre-wrap;word-break:break-word}
+@media(max-width:420px){.dl{grid-template-columns:105px 1fr}}
+.steps{display:flex;gap:4px;flex-wrap:wrap;align-items:center;margin:6px 0}
+.step{font-size:12px;padding:3px 9px;border-radius:12px;border:1px solid var(--line);color:var(--mut)}
+.step.done{background:var(--okbg);color:var(--ok);border-color:#bfe0c3}
+.step.cur{background:var(--pri);color:#fff;border-color:var(--pri)}
+.gal{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:8px}
+.gal figure{margin:0;border:1px solid var(--line);border-radius:8px;overflow:hidden;background:#fff}
+.gal img{width:100%;height:130px;object-fit:cover;display:block;cursor:zoom-in;background:#e9eef2}
+.gal figcaption{font-size:12px;padding:5px 7px;color:var(--mut)}
+.hist{font-size:12.5px;color:var(--mut);border-left:2px solid var(--line);padding-left:10px}
+.hist div{margin-bottom:4px}
+.modal{position:fixed;inset:0;background:rgba(10,20,30,.55);z-index:50;display:flex;align-items:center;justify-content:center;padding:16px}
+.modal .box{background:#fff;border-radius:14px;max-width:440px;width:100%;padding:18px;max-height:90vh;overflow:auto}
+.modal h3{margin:0 0 10px}
+.lightbox{position:fixed;inset:0;background:#000;z-index:60;display:flex;align-items:center;justify-content:center}
+.lightbox img{max-width:100%;max-height:100%}
+.lightbox button{position:absolute;top:calc(12px + var(--safe-top));right:12px}
+.toast{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(90px + var(--safe-bot));background:#16202a;color:#fff;padding:10px 16px;border-radius:10px;z-index:70;font-size:14px;max-width:90vw}
+.banner{background:#fff6e0;border:1px solid #f0d58a;color:#6b4b00;border-radius:10px;padding:10px 12px;margin-bottom:10px;font-size:13.5px}
+.zsum{width:100%;border-collapse:collapse;font-size:13px}
+.zsum th,.zsum td{padding:6px 6px;border-bottom:1px solid var(--line);text-align:center}
+.zsum th:first-child,.zsum td:first-child{text-align:left}
+.zsum tr{cursor:pointer}
+.formbar{position:sticky;bottom:0;background:var(--bg);padding:10px 0 calc(10px + var(--safe-bot));display:flex;gap:8px;z-index:10}
+.formbar .btn{flex:1;padding:12px}
+.muted{color:var(--mut)}
+.small{font-size:12.5px}
+.spin{display:inline-block;width:14px;height:14px;border:2px solid currentColor;border-right-color:transparent;border-radius:50%;animation:sp 0.8s linear infinite}
+@keyframes sp{to{transform:rotate(360deg)}}
+.foot{text-align:center;font-size:11.5px;color:var(--mut);margin-top:18px}
+.hidden{display:none!important}
+
+/* ---- app shell redesign ---- */
+header{padding:calc(12px + var(--safe-top)) 14px 12px}
+header .ttl{flex:1;min-width:0}
+header h1{font-size:18px;font-weight:700}
+header .sub{font-size:11.5px}
+.hbtn.icon{width:38px;height:38px;padding:0;justify-content:center}
+.ic{width:20px;height:20px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;flex:0 0 auto}
+.ic.sm{width:16px;height:16px}.ic.lg{width:26px;height:26px}
+.zpick{display:inline-flex;align-items:center;gap:6px;background:#fff;color:var(--pri);border:0;border-radius:20px;padding:7px 12px;font-weight:700;font-size:13.5px;cursor:pointer;white-space:nowrap}
+main{padding:14px 14px calc(96px + var(--safe-bot))}
+.tabbar{position:fixed;left:0;right:0;bottom:0;z-index:40;background:#fff;border-top:1px solid var(--line);display:flex;align-items:flex-end;justify-content:space-around;padding:6px 6px calc(6px + var(--safe-bot));box-shadow:0 -4px 16px rgba(20,50,77,.06)}
+.tabbar button{flex:1;background:none;border:0;display:flex;flex-direction:column;align-items:center;gap:3px;font-size:11.5px;color:#8695a2;padding:4px 0;cursor:pointer}
+.tabbar button.on{color:var(--pri);font-weight:700}
+.tabbar .tnew{flex:0 0 64px;height:56px;margin-top:-26px;border-radius:18px;background:var(--acc);color:#1d1406;box-shadow:0 6px 16px rgba(232,163,61,.45);justify-content:center}
+.tabbar .tnew .ic{width:28px;height:28px;stroke-width:2.4}
+.hero{background:var(--pri);color:#fff;border-radius:18px;padding:18px;margin-bottom:14px;position:relative;overflow:hidden}
+.hero:after{content:"";position:absolute;right:-40px;top:-40px;width:160px;height:160px;border-radius:50%;background:rgba(255,255,255,.06)}
+.hero .d{font-size:12.5px;opacity:.75}
+.hero .g{font-size:21px;font-weight:700;margin:2px 0 10px}
+.hero .row2{display:flex;gap:18px;font-size:12.5px}
+.hero .row2 b{display:block;font-size:20px;line-height:1.2}
+.kpis{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px}
+.kpi{background:#fff;border:1px solid var(--line);border-radius:16px;padding:14px;display:flex;gap:12px;align-items:center;cursor:pointer;text-align:left}
+.kpi:active{background:#f7f9fb}
+.kpi .ico{width:42px;height:42px;border-radius:12px;display:flex;align-items:center;justify-content:center;flex:0 0 42px}
+.kpi b{display:block;font-size:24px;line-height:1.1}
+.kpi span{font-size:12.5px;color:var(--mut)}
+.subline{display:flex;justify-content:space-between;font-size:12.5px;color:var(--mut);background:#fff;border:1px solid var(--line);border-radius:12px;padding:9px 12px;margin-bottom:16px}
+.sect{display:flex;justify-content:space-between;align-items:center;margin:18px 2px 8px}
+.sect h2{font-size:15px;margin:0;color:var(--ink)}
+.sect a,.sect button{font-size:13px;color:var(--pri2);background:none;border:0;cursor:pointer;display:flex;align-items:center;gap:2px;padding:0}
+.qa{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+.qa button{background:#fff;border:1px solid var(--line);border-radius:14px;padding:12px 6px;display:flex;flex-direction:column;align-items:center;gap:6px;font-size:12.5px;font-weight:600;color:var(--ink);cursor:pointer;position:relative}
+.qa button .ico{width:40px;height:40px;border-radius:12px;display:flex;align-items:center;justify-content:center}
+.qa .cnt{position:absolute;top:6px;right:8px;background:var(--bad);color:#fff;font-size:11px;border-radius:10px;padding:0 6px;font-weight:700}
+.ztiles{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.zt{background:#fff;border:1px solid var(--line);border-radius:14px;padding:12px;cursor:pointer;text-align:left}
+.zt.on{border-color:var(--pri2);box-shadow:0 0 0 2px rgba(31,79,122,.15)}
+.zt .zc{display:flex;justify-content:space-between;align-items:center}
+.zt .zc b{font-size:17px}
+.zt .zm{font-size:12px;color:var(--mut);margin:4px 0 8px}
+.bar{height:6px;border-radius:4px;background:#edf1f4;overflow:hidden;display:flex}
+.bar i{display:block;height:100%}
+.rrow{display:flex;gap:10px;align-items:center;background:#fff;border:1px solid var(--line);border-radius:14px;padding:9px;margin-bottom:8px;cursor:pointer}
+.rrow img,.rrow .noimg{width:48px;height:48px;border-radius:10px;object-fit:cover;flex:0 0 48px;background:#e9eef2;display:flex;align-items:center;justify-content:center;color:#9aa7b2}
+.rrow .mn{flex:1;min-width:0}
+.rrow .t{font-weight:600;font-size:14px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.rrow .m{font-size:12px;color:var(--mut);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.seg{display:flex;gap:6px;overflow-x:auto;margin-bottom:10px;scrollbar-width:none}
+.seg::-webkit-scrollbar{display:none}
+.seg button{flex:0 0 auto;border:1px solid var(--line);background:#fff;border-radius:18px;padding:6px 12px;font-size:13px;cursor:pointer;color:var(--ink)}
+.seg button.on{background:var(--pri);border-color:var(--pri);color:#fff}
+.seg button .n{opacity:.7;margin-left:4px;font-size:12px}
+.sheet{position:fixed;inset:0;background:rgba(10,20,30,.5);z-index:55;display:flex;align-items:flex-end;justify-content:center}
+.sheet .box{background:#fff;width:100%;max-width:520px;border-radius:20px 20px 0 0;padding:10px 14px calc(16px + var(--safe-bot));max-height:80vh;overflow:auto}
+.sheet .grab{width:44px;height:5px;border-radius:3px;background:#d3dbe2;margin:2px auto 10px}
+.sheet .opt{display:flex;justify-content:space-between;align-items:center;padding:13px 6px;border-bottom:1px solid var(--line);cursor:pointer;font-size:15px}
+.sheet .opt.on{color:var(--pri);font-weight:700}
+.rec{border-radius:14px}
+.card{border-radius:14px}
+</style>
+</head>
+<body>
+<header>
+  <div class="row">
+    <button class="hbtn icon hidden" id="backBtn" aria-label="Back"></button>
+    <div class="ttl"><h1 id="title">Site Notes</h1><div class="sub" id="subtitle">Masirah WWN · Pkg 1A, 1B &amp; 1C</div></div>
+    <button class="zpick" id="zoneBtn" aria-label="Choose zone"></button>
+  </div>
+</header>
+<main id="view"><div class="empty"><span class="spin"></span> Loading…</div></main>
+<nav class="tabbar" id="tabbar">
+  <button data-tab="home"></button>
+  <button data-tab="list"></button>
+  <button class="tnew" id="newBtn" aria-label="New record"></button>
+  <button data-tab="reports"></button>
+  <button data-tab="settings"></button>
+</nav>
+
+<script src="https://cdn.jsdelivr.net/npm/exifr@7.1.3/dist/lite.umd.js"></script>
+<script>
+(() => {
+"use strict";
+const PROJECT_DEFAULT = "Wastewater Network System (Package 1A, 1B & 1C)\nMasirah Island, Sultanate of Oman";
+const DEFAULTS = {
+  zones: ["1A-1","1A-2","1B-1","1B-2","1B-3","1B-4","1C-1","1C-2"],
+  components: ["BPC","HCC","Manhole","Pipeline","Other"],
+  activities: ["Setting out","Excavation","Rock excavation","Shoring / trench support","Dewatering","Pipe laying","Chamber / MH construction","Encasement","Backfilling & compaction","Testing (air / water / CCTV)","Reinstatement","Utilities damage","Traffic management / HSE","Completion / handover"],
+  responsible: ["Contractor","Subcontractor","Utility owner","Client"],
+  project: PROJECT_DEFAULT, company: "", assets: {}
+};
+const OBS = [
+  {k:"Info",label:"Info (for record)",cls:"t-info",badge:"b-info"},
+  {k:"Compliant",label:"Compliant",cls:"t-ok",badge:"b-ok"},
+  {k:"Minor defect",label:"Minor defect",cls:"t-minor",badge:"b-minor"},
+  {k:"Major defect",label:"Major defect",cls:"t-bad",badge:"b-bad"},
+  {k:"Safety",label:"Safety",cls:"t-bad",badge:"b-bad"},
+  {k:"Environmental",label:"Environmental",cls:"t-minor",badge:"b-minor"},
+  {k:"Utility damage",label:"Utility damage",cls:"t-bad",badge:"b-bad"}
+];
+const DEFECT = k => !["Info","Compliant"].includes(k);
+const FLOW = ["Open","Action by contractor","Re-inspected","Closed"];
+const TAGS = ["Before","During","After"];
+
+let db=null, assets=null, user=null, canWrite=true;
+let settings = JSON.parse(JSON.stringify(DEFAULTS));
+let notes = [];           // [{id, ...data}]
+let loaded = false, loadNote = "";
+let zone = "All";
+let statFilter = "";
+let filters = {q:"", comp:"", act:"", obs:"", from:"", to:""};
+let route = {v:"home"};   // list | edit | detail | pc
+let draft = null;         // record being edited
+let pending = [];         // new photos {file, url, caption, tag, gps}
+
+const $ = (s,r=document)=>r.querySelector(s);
+const esc = s => String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const pad = (n,w=2)=>String(n).padStart(w,"0");
+const today = () => { const d=new Date(); return d.getFullYear()+"-"+pad(d.getMonth()+1)+"-"+pad(d.getDate()); };
+const nowTime = () => { const d=new Date(); return pad(d.getHours())+":"+pad(d.getMinutes()); };
+const fmtDate = s => { if(!s) return ""; const [y,m,d]=s.split("-"); const M=["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"]; return `${+d} ${M[+m-1]} ${y}`; };
+let archive=null; let liveNotes=[]; let zipUrls={};
+const urlCache={};
+const blob = id => (id && String(id).startsWith("zip:")) ? (zipUrls[id.slice(4)]||"") : (urlCache[id]||"");
+function toast(msg,ms=2600){ const t=document.createElement("div"); t.className="toast"; t.textContent=msg; document.body.appendChild(t); setTimeout(()=>t.remove(),ms); }
+function lsGet(k,d){ try{ const v=localStorage.getItem("sn_"+k); return v?JSON.parse(v):d; }catch(e){ return d; } }
+function lsSet(k,v){ try{ localStorage.setItem("sn_"+k, JSON.stringify(v)); }catch(e){} }
+
+zone = lsGet("zone","All");
+
+/* ---------- confirm / prompt dialogs ---------- */
+function dialog({title, body="", input=null, ok="OK", cancel="Cancel", danger=false}){
+  return new Promise(res=>{
+    const m=document.createElement("div"); m.className="modal";
+    m.innerHTML=`<div class="box"><h3>${esc(title)}</h3><div class="small muted" style="margin-bottom:10px">${body}</div>
+      ${input!==null?`<textarea id="dlgIn" placeholder="${esc(input)}"></textarea><div class="err hidden" id="dlgErr">Enter a reason first</div>`:""}
+      <div style="display:flex;gap:8px;justify-content:flex-end;margin-top:12px">
+      ${cancel?`<button class="btn" data-a="c">${esc(cancel)}</button>`:""}<button class="btn ${danger?"danger":"pri"}" data-a="o">${esc(ok)}</button></div></div>`;
+    document.body.appendChild(m);
+    m.addEventListener("click",e=>{
+      const a=e.target.dataset.a; if(!a) return;
+      if(a==="o" && input!==null){ const v=$("#dlgIn",m).value.trim(); if(!v){ $("#dlgErr",m).classList.remove("hidden"); return; } m.remove(); res(v); return; }
+      m.remove(); res(a==="o"? true : null);
+    });
+  });
+}
+
+/* ---------- derived ---------- */
+function isOverdue(n){ return n.status && !["Closed","Info","Void"].includes(n.status) && n.dueDate && n.dueDate < today(); }
+function statusBadge(n){
+  if(n.status==="Void") return `<span class="badge b-void">Void</span>`;
+  if(n.status==="Info") return `<span class="badge b-info">Info</span>`;
+  if(n.status==="Closed") return `<span class="badge b-closed">Closed</span>`;
+  return `<span class="badge b-open">${esc(n.status||"Open")}</span>`;
+}
+function obsBadge(n){ const o=OBS.find(x=>x.k===n.obsType); return o && n.obsType!=="Info" ? `<span class="badge ${o.badge}">${esc(n.obsType)}</span>`:""; }
+function where(n){ return [n.zone, n.plot && ("Plot/Line "+n.plot), n.asset].filter(Boolean).join(" · "); }
+function headline(n){
+  const comp = n.component==="Other" ? (n.componentOther||"Other") : n.component;
+  const what = n.component==="Pipeline" && (n.from||n.to) ? `Pipeline ${n.from||"?"} → ${n.to||"?"}` : (n.asset || comp || "");
+  return [what, n.activity].filter(Boolean).join(" · ");
+}
+
+function zoneNotes(z){ return notes.filter(n=> z==="All" || n.zone===z); }
+function counts(list){
+  const c={open:0,overdue:0,closed:0,ncr:0,info:0};
+  for(const n of list){ if(n.status==="Void") continue;
+    if(n.status==="Info") c.info++; else if(n.status==="Closed") c.closed++; else c.open++;
+    if(isOverdue(n)) c.overdue++; if(n.ncrType && n.ncrType!=="None") c.ncr++; }
+  return c;
+}
+function filtered(){
+  let L = zoneNotes(zone);
+  if(statFilter==="open") L=L.filter(n=>!["Closed","Info","Void"].includes(n.status));
+  if(statFilter==="overdue") L=L.filter(isOverdue);
+  if(statFilter==="closed") L=L.filter(n=>n.status==="Closed");
+  if(statFilter==="ncr") L=L.filter(n=>n.ncrType && n.ncrType!=="None");
+  if(statFilter==="info") L=L.filter(n=>n.status==="Info");
+  if(statFilter!=="void") { if(!filters.showVoid) L=L.filter(n=>n.status!=="Void"); }
+  const f=filters;
+  if(f.comp) L=L.filter(n=>n.component===f.comp);
+  if(f.act) L=L.filter(n=>n.activity===f.act);
+  if(f.obs) L=L.filter(n=>n.obsType===f.obs);
+  if(f.from) L=L.filter(n=>n.date>=f.from);
+  if(f.to) L=L.filter(n=>n.date<=f.to);
+  if(f.q){ const q=f.q.toLowerCase(); L=L.filter(n=>[n.no,n.zone,n.plot,n.asset,n.from,n.to,n.activity,n.component,n.componentOther,n.observation,n.rfi,n.ncrNo,n.drawing,n.actionRequired,n.responsible,(n.photos||[]).map(p=>p.caption).join(" ")].join(" ").toLowerCase().includes(q)); }
+  return L.sort((a,b)=> (b.date+b.time+b.no).localeCompare(a.date+a.time+a.no));
+}
+
+/* ---------- icons ---------- */
+const ICONS={
+ home:'<path d="M5 12H3l9-9 9 9h-2"/><path d="M5 12v7a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-7"/><path d="M9 21v-6a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2v6"/>',
+ list:'<path d="M9 6h11M9 12h11M9 18h11"/><path d="M5 6v.01M5 12v.01M5 18v.01"/>',
+ plus:'<path d="M12 5v14M5 12h14"/>',
+ chart:'<path d="M3 13a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v6a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1z"/><path d="M15 9a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v10a1 1 0 0 1-1 1h-4a1 1 0 0 1-1-1z"/><path d="M9 5a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v14a1 1 0 0 1-1 1h-4a1 1 0 0 1-1-1z"/><path d="M4 20h14"/>',
+ gear:'<path d="M10.3 4.3c.4-1.8 3-1.8 3.4 0a1.7 1.7 0 0 0 2.6 1.1c1.5-.9 3.3.8 2.4 2.4a1.7 1.7 0 0 0 1 2.5c1.9.4 1.9 3 0 3.4a1.7 1.7 0 0 0-1 2.6c.9 1.5-.9 3.3-2.4 2.4a1.7 1.7 0 0 0-2.6 1c-.4 1.9-3 1.9-3.4 0a1.7 1.7 0 0 0-2.6-1c-1.5.9-3.3-.9-2.4-2.4a1.7 1.7 0 0 0-1-2.6c-1.9-.4-1.9-3 0-3.4a1.7 1.7 0 0 0 1-2.5c-.9-1.6.9-3.3 2.4-2.4a1.7 1.7 0 0 0 2.6-1.1z"/><circle cx="12" cy="12" r="3"/>',
+ back:'<path d="M15 6l-6 6 6 6"/>',
+ pin:'<path d="M9 11a3 3 0 1 0 6 0 3 3 0 0 0-6 0"/><path d="M17.7 16.7L13.4 21a2 2 0 0 1-2.8 0l-4.3-4.3a8 8 0 1 1 11.3 0z"/>',
+ down:'<path d="M6 9l6 6 6-6"/>',
+ right:'<path d="M9 6l6 6-6 6"/>',
+ alert:'<path d="M12 9v4M12 17h.01"/><path d="M10.4 3.9L2.5 17.6A1.9 1.9 0 0 0 4.1 20.5h15.8a1.9 1.9 0 0 0 1.6-2.9L13.6 3.9a1.9 1.9 0 0 0-3.2 0z"/>',
+ clock:'<circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/>',
+ check:'<circle cx="12" cy="12" r="9"/><path d="M9 12l2 2 4-4"/>',
+ file:'<path d="M14 3v4a1 1 0 0 0 1 1h4"/><path d="M17 21H7a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h7l5 5v11a2 2 0 0 1-2 2z"/><path d="M9 13h6M9 17h4"/>',
+ info:'<circle cx="12" cy="12" r="9"/><path d="M12 8h.01M11 12h1v4h1"/>',
+ repeat:'<path d="M4 12V9a3 3 0 0 1 3-3h13l-3-3M20 12v3a3 3 0 0 1-3 3H4l3 3"/>',
+ send:'<path d="M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2"/><path d="M7 9l5-5 5 5M12 4v12"/>',
+ camera:'<path d="M5 7h1a2 2 0 0 0 2-2 1 1 0 0 1 1-1h6a1 1 0 0 1 1 1 2 2 0 0 0 2 2h1a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V9a2 2 0 0 1 2-2"/><circle cx="12" cy="13" r="3"/>',
+ search:'<circle cx="10" cy="10" r="7"/><path d="M21 21l-6-6"/>',
+ photo:'<path d="M15 8h.01"/><rect x="3" y="3" width="18" height="18" rx="3"/><path d="M3 16l5-5c.9-.9 2.1-.9 3 0l5 5"/><path d="M14 14l1-1c.9-.9 2.1-.9 3 0l3 3"/>'
+};
+const ic=(n,c="")=>`<svg class="ic ${c}" viewBox="0 0 24 24" aria-hidden="true">${ICONS[n]||""}</svg>`;
+
+/* ---------- shell ---------- */
+let lastTab="home";
+function setupShell(){
+  $("#backBtn").innerHTML=ic("back");
+  const tabs={home:["home","Home"],list:["list","Records"],reports:["chart","Reports"],settings:["gear","Settings"]};
+  document.querySelectorAll("[data-tab]").forEach(b=>{ const [i,l]=tabs[b.dataset.tab]; b.innerHTML=ic(i)+`<span>${l}</span>`; b.onclick=()=>{ lastTab=b.dataset.tab; go({v:b.dataset.tab}); }; });
+  $("#newBtn").innerHTML=ic("plus");
+  $("#newBtn").onclick=()=>startNew(false);
+  $("#zoneBtn").onclick=zoneSheet;
+  $("#backBtn").onclick=()=>{ if(route.v==="edit" && route.id) go({v:"detail",id:route.id}); else go({v:lastTab}); };
+}
+function zoneSheet(){
+  const m=document.createElement("div"); m.className="sheet";
+  const all=["All",...settings.zones];
+  m.innerHTML=`<div class="box"><div class="grab"></div><div style="font-weight:700;font-size:16px;margin:0 6px 4px">Choose zone</div>`+
+    all.map(z=>{ const c=counts(zoneNotes(z)); return `<div class="opt ${z===zone?"on":""}" data-z="${esc(z)}"><span>${esc(z==="All"?"All zones":"Zone "+z)}</span><span class="small muted">${c.open?c.open+" open":""}${c.overdue?` · <span style="color:var(--bad)">${c.overdue} overdue</span>`:""}</span></div>`; }).join("")+`</div>`;
+  m.onclick=e=>{ if(e.target===m){ m.remove(); return; } const o=e.target.closest("[data-z]"); if(!o) return; zone=o.dataset.z; lsSet("zone",zone); m.remove(); render(); };
+  document.body.appendChild(m);
+}
+
+/* ---------- router ---------- */
+function go(r){ route=r; window.scrollTo(0,0); render(); }
+function render(){
+  const tabView=["home","list","reports","settings"].includes(route.v);
+  $("#backBtn").classList.toggle("hidden", tabView);
+  $("#tabbar").classList.toggle("hidden", !tabView);
+  $("#newBtn").classList.toggle("hidden", !canWrite || !!archive);
+  document.querySelectorAll("[data-tab]").forEach(b=>b.classList.toggle("on", b.dataset.tab===route.v));
+  const zb=$("#zoneBtn"); zb.classList.toggle("hidden", !(route.v==="home"||route.v==="list"));
+  zb.innerHTML=ic("pin","sm")+`<span>${esc(zone==="All"?"All zones":zone)}</span>`+ic("down","sm");
+  $("#subtitle").textContent = archive ? "Old records from PC · read-only" : "Masirah WWN · Pkg 1A, 1B & 1C";
+  if(route.v==="home") return renderHome();
+  if(route.v==="list") return renderList();
+  if(route.v==="edit") return renderEdit();
+  if(route.v==="detail") return renderDetail();
+  if(route.v==="reports") return renderReports();
+  if(route.v==="settings") return renderPC();
+}
+
+/* ---------- home dashboard ---------- */
+function renderHome(){
+  $("#title").textContent="Site Notes";
+  const L=zoneNotes(zone).filter(n=>n.status!=="Void");
+  const c=counts(L); const td=today();
+  const todayL=L.filter(n=>n.date===td);
+  const photosToday=todayL.reduce((a,n)=>a+(n.photos||[]).length,0);
+  const raisedToday=todayL.filter(n=>DEFECT(n.obsType)).length;
+  const h=new Date().getHours(); const greet=h<12?"Good morning":h<17?"Good afternoon":"Good evening";
+  const dstr=new Date().toLocaleDateString("en-GB",{weekday:"long",day:"numeric",month:"long",year:"numeric"});
+  const u=db&&!archive?unsentInfo():{count:0};
+  let html="";
+  if(updateReady) html+=`<div class="banner" style="background:#e6f3e7;border-color:#bfe0c3;color:#1f5a28;display:flex;align-items:center;gap:8px;flex-wrap:wrap"><b>A new version of Site Notes is ready.</b><span class="small">Your records stay safe.</span><span style="flex:1"></span><button class="btn sm pri" id="updBtn">Update now</button></div>`;
+  if(archive) html+=`<div class="banner" style="background:#e4effa;border-color:#b5d4f4;color:#0c447c">Viewing old records: <b>${esc(archive.names.join(", "))}</b> (${archive.count}, read-only). <button class="btn sm" id="exitArch" style="margin-left:6px">Back to live records</button></div>`;
+  if(!db) html+=`<div class="banner">${esc(loadNote||"Starting…")}</div>`;
+  html+=installCard();
+  html+=`<div class="hero"><div class="d">${esc(dstr)}</div><div class="g">${greet}</div>
+    <div class="row2"><div><b>${todayL.length}</b>records today</div><div><b>${raisedToday}</b>defects raised</div><div><b>${photosToday}</b>photos</div></div></div>`;
+  const kp=(k,label,val,icon,col,bg)=>`<button class="kpi" data-s="${k}"><div class="ico" style="background:${bg};color:${col}">${ic(icon)}</div><div><b style="color:${col}">${val}</b><span>${label}</span></div></button>`;
+  html+=`<div class="kpis">${kp("open","Open items",c.open,"clock","#b7791f","#fdf3e1")}${kp("overdue","Overdue",c.overdue,"alert","#b42e2e","#fbe6e6")}${kp("closed","Closed",c.closed,"check","#2f7a3b","#e6f3e7")}${kp("ncr","NCR / SOR",c.ncr,"file","#14324d","#e4ecf3")}</div>`;
+  html+=`<div class="subline"><span>${ic("info","sm")} Info records: <b>${c.info}</b></span><span>Total: <b>${L.length}</b></span></div>`;
+  if(canWrite && !archive) html+=`<div class="qa">
+    <button id="qaNew"><div class="ico" style="background:#fdf0dc;color:#9a5d00">${ic("camera")}</div>New record</button>
+    <button id="qaRep"><div class="ico" style="background:#e4ecf3;color:#14324d">${ic("repeat")}</div>Repeat last</button>
+    <button id="qaSend">${u.count?`<span class="cnt">${u.count}</span>`:""}<div class="ico" style="background:#e6f3e7;color:#2f7a3b">${ic("send")}</div>Send to PC</button></div>`;
+  html+=`<div class="sect"><h2>Zones</h2>${zone!=="All"?`<button id="allZ">Show all</button>`:""}</div><div class="ztiles">`+
+    settings.zones.map(z=>{ const A=zoneNotes(z).filter(n=>n.status!=="Void"); const k=counts(A); const tot=k.open+k.closed; const pc=tot?Math.round(k.closed/tot*100):0;
+      return `<button class="zt ${z===zone?"on":""}" data-zt="${esc(z)}"><div class="zc"><b>${esc(z)}</b>${k.overdue?`<span class="badge b-bad">${k.overdue} overdue</span>`:k.open?`<span class="badge b-open">${k.open} open</span>`:k.closed?`<span class="badge b-closed">All closed</span>`:A.length?`<span class="badge b-info">Info</span>`:""}</div>
+        <div class="zm">${A.length} record${A.length===1?"":"s"}${tot?` · ${pc}% closed`:""}</div><div class="bar"><i style="width:${tot?k.closed/tot*100:0}%;background:#2f7a3b"></i><i style="width:${tot?(k.open-k.overdue)/tot*100:0}%;background:#e8a33d"></i><i style="width:${tot?k.overdue/tot*100:0}%;background:#b42e2e"></i></div></button>`; }).join("")+`</div>`;
+  const recent=L.slice().sort((a,b)=>(b.date+b.time+b.no).localeCompare(a.date+a.time+a.no)).slice(0,5);
+  html+=`<div class="sect"><h2>Recent records</h2>${L.length?`<button id="viewAll">View all ${ic("right","sm")}</button>`:""}</div>`;
+  if(!loaded) html+=`<div class="empty"><span class="spin"></span> Loading…</div>`;
+  else if(!recent.length) html+=`<div class="card" style="text-align:center;padding:24px 14px"><div style="color:var(--pri);margin-bottom:6px">${ic("camera","lg")}</div><div style="font-weight:700">Start your first site record</div><div class="small muted" style="margin-top:4px">Tap the orange <b>+</b> button below at site, add photos, and save.</div></div>`;
+  else html+=recent.map(n=>{ const ph=(n.photos||[])[0]; return `<div class="rrow" data-id="${esc(n.id)}">${ph?`<img src="${blob(ph.prev||ph.orig)}" alt="">`:`<div class="noimg">${ic("photo")}</div>`}<div class="mn"><div class="t">${esc(headline(n)||n.no)}</div><div class="m">${esc(n.no)} · ${esc(where(n))}</div></div><div style="text-align:right">${statusBadge(n)}<div class="small muted" style="margin-top:3px">${esc(fmtDate(n.date).replace(/ \d{4}$/,""))}</div></div></div>`; }).join("");
+  html+=`<div class="foot">${esc(settings.project).replace(/\n/g,"<br>")}</div>`;
+  const v=$("#view"); v.innerHTML=html;
+  const on=(id,f)=>{ const e=$(id); if(e) e.onclick=f; };
+  on("#updBtn",applyUpdate); on("#exitArch",closeArchive);
+  on("#qaNew",()=>startNew(false)); on("#qaRep",()=>startNew(true)); on("#qaSend",()=>{ lastTab="reports"; go({v:"reports"}); });
+  on("#allZ",()=>{ zone="All"; lsSet("zone",zone); render(); }); on("#viewAll",()=>{ statFilter=""; lastTab="list"; go({v:"list"}); });
+  const ib=$("#instBtn"); if(ib) ib.onclick=async()=>{ if(!installEvt) return; installEvt.prompt(); try{ const r=await installEvt.userChoice; if(r.outcome==="accepted") lsSet("installDone",true); }catch(e){} installEvt=null; render(); };
+  const ix=$("#instX"); if(ix) ix.onclick=()=>{ lsSet("installHide",true); render(); };
+  v.querySelectorAll(".kpi").forEach(k=>k.onclick=()=>{ statFilter=k.dataset.s; lastTab="list"; go({v:"list"}); });
+  v.querySelectorAll("[data-zt]").forEach(t=>t.onclick=()=>{ zone=t.dataset.zt; lsSet("zone",zone); statFilter=""; lastTab="list"; go({v:"list"}); });
+  v.querySelectorAll(".rrow").forEach(r=>r.onclick=()=>go({v:"detail",id:r.dataset.id}));
+}
+function renderReports(){
+  $("#title").textContent="Send & reports";
+  $("#view").innerHTML=`<div id="pcTools"></div>`;
+  renderPcTools();
+}
+
+/* ---------- list ---------- */
+function renderList(){
+  $("#title").textContent = "Records";
+  const c=counts(zoneNotes(zone));
+  const L=filtered();
+  const opt=(arr,v)=>`<option value="">All</option>`+arr.map(x=>`<option ${x===v?"selected":""}>${esc(x)}</option>`).join("");
+  let html="";
+  if(archive) html+=`<div class="banner" style="background:#e4effa;border-color:#b5d4f4;color:#0c447c">Viewing old records: <b>${esc(archive.names.join(", "))}</b> (${archive.count}, read-only). <button class="btn sm" id="exitArch" style="margin-left:6px">Back to live records</button></div>`;
+  if(db && !archive){ const u=unsentInfo(); if(u.count && u.oldest && (Date.now()-new Date(u.oldest).getTime())>20*3600e3) html+=`<div class="banner"><b>${u.count} record${u.count>1?"s":""} not yet sent to PC.</b> They live only on this phone until you send them. <button class="btn sm" id="goSend" style="margin-left:6px">Send to PC</button></div>`; }
+  html+=`<div class="seg">`+[["","All",zoneNotes(zone).filter(n=>n.status!=="Void").length],["open","Open",c.open],["overdue","Overdue",c.overdue],["closed","Closed",c.closed],["ncr","NCR / SOR",c.ncr],["info","Info",c.info]]
+    .map(([k,l,v])=>`<button class="${statFilter===k?"on":""}" data-s="${k}">${l}<span class="n">${v}</span></button>`).join("")+`</div>`;
+  html+=`<div class="tools"><input type="search" id="q" placeholder="Search plot, MH no., RFI, NCR, text…" value="${esc(filters.q)}">
+    <button class="btn sm" id="fToggle">Filters${(filters.comp||filters.act||filters.obs||filters.from||filters.to)?" •":""}</button></div>
+  <div class="fbar ${lsGet("fopen",false)?"":"hidden"}" id="fbar">
+    <div style="flex:1 1 120px"><div class="small muted">Component</div><select id="fComp">${opt(settings.components,filters.comp)}</select></div>
+    <div style="flex:1 1 160px"><div class="small muted">Activity</div><select id="fAct">${opt(settings.activities,filters.act)}</select></div>
+    <div style="flex:1 1 130px"><div class="small muted">Type</div><select id="fObs">${opt(OBS.map(o=>o.k),filters.obs)}</select></div>
+    <div style="flex:1 1 130px"><div class="small muted">From date</div><input type="date" id="fFrom" value="${esc(filters.from)}"></div>
+    <div style="flex:1 1 130px"><div class="small muted">To date</div><input type="date" id="fTo" value="${esc(filters.to)}"></div>
+    <div style="flex:1 1 100%;display:flex;gap:8px;align-items:center"><label class="small"><input type="checkbox" id="fVoid" style="width:auto" ${filters.showVoid?"checked":""}> Show void records</label><span style="flex:1"></span><button class="btn sm" id="fClear">Clear filters</button></div>
+  </div>`;
+  if(!loaded) html+=`<div class="empty"><span class="spin"></span> Loading records…</div>`;
+  else if(!L.length) html+= notes.length ? `<div class="empty">No records match these filters.</div>` :
+      `<div class="empty"><div style="font-size:16px;font-weight:600;color:var(--ink);margin-bottom:6px">Start your first site record</div>Tap <b>+ New record</b> at site, add photos, and save.</div>`;
+  else html+=`<div class="small muted" style="margin:0 2px 6px">${L.length} record${L.length>1?"s":""}</div><div class="list">`+L.map(n=>{
+      const ph=(n.photos||[])[0];
+      return `<div class="rec" data-id="${esc(n.id)}">
+        ${ph?`<img class="thumb" loading="lazy" src="${blob(ph.prev||ph.orig)}" alt="">`:`<div class="thumb" style="display:flex;align-items:center;justify-content:center;color:#9aa7b2">${ic("photo")}</div>`}
+        <div class="main"><div class="top"><span class="no">${esc(n.no)}</span><span>${obsBadge(n)} ${statusBadge(n)}</span></div>
+        <div class="t">${esc(headline(n)||"(no title)")}</div>
+        <div class="m">${esc(where(n))}${n.rfi?" · RFI "+esc(n.rfi):""}${n.ncrType&&n.ncrType!=="None"?" · "+esc(ncrLabel(n)):""}</div>
+        <div class="m">${esc(fmtDate(n.date))} ${esc(n.time||"")}${(n.photos||[]).length?" · "+n.photos.length+" photo"+(n.photos.length>1?"s":""):""}${isOverdue(n)?` · <span class="overdue">Overdue (due ${esc(fmtDate(n.dueDate))})</span>`:(n.dueDate&&!["Closed","Info","Void"].includes(n.status)?" · due "+esc(fmtDate(n.dueDate)):"")}</div></div></div>`;}).join("")+`</div>`;
+  html+=`<div class="foot">${esc(settings.project).replace(/\n/g,"<br>")}</div>`;
+  const v=$("#view"); v.innerHTML=html;
+  const xa=$("#exitArch"); if(xa) xa.onclick=closeArchive;
+  const gs=$("#goSend"); if(gs) gs.onclick=()=>{ lastTab="reports"; go({v:"reports"}); };
+  const ub=$("#updBtn"); if(ub) ub.onclick=applyUpdate;
+  const ib=$("#instBtn"); if(ib) ib.onclick=async()=>{ if(!installEvt) return; installEvt.prompt(); try{ const r=await installEvt.userChoice; if(r.outcome==="accepted") lsSet("installDone",true); }catch(e){} installEvt=null; render(); };
+  const ix=$("#instX"); if(ix) ix.onclick=()=>{ lsSet("installHide",true); render(); };
+  v.querySelectorAll(".seg [data-s]").forEach(b=>b.onclick=()=>{ statFilter=b.dataset.s; render(); });
+  v.querySelectorAll(".rec").forEach(r=>r.onclick=()=>go({v:"detail",id:r.dataset.id}));
+  const q=$("#q"); q.oninput=()=>{ filters.q=q.value; clearTimeout(q._t); q._t=setTimeout(()=>{ const pos=q.selectionStart; render(); const q2=$("#q"); q2.focus(); try{q2.setSelectionRange(pos,pos);}catch(e){} },250); };
+  $("#fToggle").onclick=()=>{ lsSet("fopen",!lsGet("fopen",false)); $("#fbar").classList.toggle("hidden"); };
+  const bind=(id,key)=>{ const e=$(id); e.onchange=()=>{ filters[key]=e.type==="checkbox"?e.checked:e.value; render(); }; };
+  bind("#fComp","comp"); bind("#fAct","act"); bind("#fObs","obs"); bind("#fFrom","from"); bind("#fTo","to"); bind("#fVoid","showVoid");
+  $("#fClear").onclick=()=>{ filters={q:filters.q,comp:"",act:"",obs:"",from:"",to:""}; statFilter=""; render(); };
+}
+
+/* ---------- new / edit ---------- */
+function blankDraft(repeat){
+  const last=lsGet("last",{});
+  const d={ date:today(), time:nowTime(), zone: zone!=="All"?zone:(last.zone||""), plot:"", asset:"", component:"", componentOther:"", from:"", to:"",
+    activity:"", obsType:"", severity:"", observation:"", rfi:"", drawing:"", itp:"", contractorRep:"", weather:"", ground:"", measurements:"",
+    actionRequired:"", responsible:"", dueDate:"", ncrType:"None", ncrNo:"", photos:[], gps:null, mapLink:"" };
+  if(repeat && last.zone){ Object.assign(d,{zone:last.zone, plot:last.plot||"", asset:last.asset||"", component:last.component||"", componentOther:last.componentOther||"", activity:last.activity||"", from:last.from||"", to:last.to||"", rfi:last.rfi||""}); }
+  return d;
+}
+function startNew(repeat){ if(!db){ toast("Storage isn't available in this view."); return; } draft=blankDraft(repeat); pending=[]; go({v:"edit"}); getLocation(); }
+let locState="idle"; // idle | busy | ok | denied | fail
+function locHtml(){
+  const g=draft&&draft.gps;
+  if(locState==="busy" && !g) return `${ic("pin","sm")}<span>Getting your location…</span><span class="spin" style="margin-left:auto"></span>`;
+  if(g) return `${ic("pin","sm")}<span><b>${g.lat.toFixed(6)}, ${g.lng.toFixed(6)}</b>${g.acc?` <span class="muted">(±${Math.round(g.acc)} m)</span>`:""}${g.src==="photo"?` <span class="muted">from photo</span>`:""}</span><button type="button" class="btn sm" id="locRef" style="margin-left:auto">Refresh</button>`;
+  if(locState==="denied") return `${ic("pin","sm")}<span>Location is blocked. Allow location for this app in your phone settings.</span><button type="button" class="btn sm" id="locRef" style="margin-left:auto">Try again</button>`;
+  if(locState==="fail") return `${ic("pin","sm")}<span>Couldn't get location. Turn on GPS and try again.</span><button type="button" class="btn sm" id="locRef" style="margin-left:auto">Try again</button>`;
+  return `${ic("pin","sm")}<span>No location yet</span><button type="button" class="btn sm" id="locRef" style="margin-left:auto">Get location</button>`;
+}
+function bindLoc(){ const b=$("#locRef"); if(b) b.onclick=()=>getLocation(true); }
+function getLocation(force){
+  if(!("geolocation" in navigator)){ locState="fail"; return; }
+  if(!force && draft && draft.gps && draft.gps.src!=="photo") return;
+  locState="busy"; const l=$("#locLine"); if(l){ l.innerHTML=locHtml(); bindLoc(); }
+  navigator.geolocation.getCurrentPosition(p=>{
+    if(!draft) return;
+    draft.gps={lat:p.coords.latitude, lng:p.coords.longitude, acc:p.coords.accuracy, src:"device"}; locState="ok";
+    const l=$("#locLine"); if(l){ l.innerHTML=locHtml(); bindLoc(); }
+  }, e=>{ locState = e.code===1 ? "denied" : "fail"; const l=$("#locLine"); if(l){ l.innerHTML=locHtml(); bindLoc(); } },
+  {enableHighAccuracy:true, timeout:20000, maximumAge:30000});
+}
+function startEdit(id){ const n=notes.find(x=>x.id===id); if(!n) return; draft=JSON.parse(JSON.stringify(n)); pending=[]; go({v:"edit",id}); }
+
+function chipRow(name, list, val, extra=""){ return `<div class="chips" data-chips="${name}">`+list.map(x=>{const o=typeof x==="string"?{k:x,label:x,cls:""}:x; return `<button type="button" class="chip ${o.cls||""} ${o.k===val?"on":""}" data-v="${esc(o.k)}">${esc(o.label)}</button>`;}).join("")+extra+`</div>`; }
+
+function renderEdit(){
+  const d=draft, isNew=!route.id;
+  $("#title").textContent = isNew ? "New record" : "Edit "+d.no;
+  const defect = d.obsType && DEFECT(d.obsType);
+  const assetsList = (settings.assets||{})[d.zone]||[];
+  const html=`
+  <div class="card">
+    <div class="small muted" style="margin-bottom:6px">${isNew?"Record number is given on save":esc(d.no)} · ${esc(fmtDate(d.date))} ${esc(d.time)}</div>
+    <div id="locLine" class="small" style="display:flex;align-items:center;gap:6px;margin-bottom:10px;background:#f3f8fd;border:1px solid #d6e6f5;border-radius:10px;padding:8px 10px">${locHtml()}</div>
+    <div class="grid2">
+      <div class="fld"><label>Zone <span class="req">*</span></label><select id="e_zone"><option value="">Select…</option>${settings.zones.map(z=>`<option ${z===d.zone?"selected":""}>${esc(z)}</option>`).join("")}</select><div class="err hidden" data-err="zone">Choose a zone</div></div>
+      <div class="fld"><label>Plot / Line <span class="req">*</span></label><input id="e_plot" value="${esc(d.plot)}" placeholder="Plot 245 / Line L-07"><div class="err hidden" data-err="plot">Enter plot or line</div></div>
+    </div>
+    <div class="fld"><label>Component <span class="req">*</span></label>${chipRow("component", settings.components, d.component)}<div class="err hidden" data-err="component">Choose a component</div></div>
+    <div class="fld ${d.component==="Other"?"":"hidden"}" id="w_compOther"><label>Component (other)</label><input id="e_componentOther" value="${esc(d.componentOther)}" placeholder="Valve chamber"></div>
+    <div class="fld ${d.component==="Pipeline"?"hidden":""}" id="w_asset"><label>Asset ref (MH / BPC / HCC no.)</label><input id="e_asset" list="assetList" value="${esc(d.asset)}" placeholder="MH-12"><datalist id="assetList">${assetsList.map(a=>`<option value="${esc(a)}">`).join("")}</datalist></div>
+    <div class="grid2 ${d.component==="Pipeline"?"":"hidden"}" id="w_fromto">
+      <div class="fld"><label>From</label><input id="e_from" list="assetList" value="${esc(d.from)}" placeholder="MH-12 / Ch 0+150"></div>
+      <div class="fld"><label>To</label><input id="e_to" list="assetList" value="${esc(d.to)}" placeholder="MH-13 / Ch 0+230"></div>
+    </div>
+    <div class="fld"><label>Activity / stage <span class="req">*</span></label>
+      <select id="e_activity"><option value="">Select…</option>${settings.activities.map(a=>`<option ${a===d.activity?"selected":""}>${esc(a)}</option>`).join("")}${d.activity&&!settings.activities.includes(d.activity)?`<option selected>${esc(d.activity)}</option>`:""}<option value="__add">+ Add new activity…</option></select>
+      <div class="err hidden" data-err="activity">Choose an activity</div></div>
+  </div>
+  <div class="card">
+    <div class="fld"><label>Observation type <span class="req">*</span></label>${chipRow("obsType", OBS, d.obsType)}<div class="err hidden" data-err="obsType">Choose a type</div></div>
+    <div class="fld ${defect?"":"hidden"}" id="w_sev"><label>Severity</label>${chipRow("severity", ["Low","Medium","High"], d.severity)}</div>
+    <div class="fld"><label>Observation / description</label><textarea id="e_observation" placeholder="What you saw on site">${esc(d.observation)}</textarea></div>
+    <div class="fld"><label>Photos <span class="req ${defect?"":"hidden"}" id="phReq">*</span></label>
+      <div class="photos" id="photos"></div>
+      <input type="file" id="phIn" accept="image/*" multiple class="hidden">
+      <input type="file" id="phCam" accept="image/*" capture="environment" class="hidden">
+      <div class="err hidden" data-err="photos">Add at least one photo for a defect</div></div>
+    <div class="fld"><label>Location link (optional)</label><input id="e_mapLink" value="${esc(d.mapLink)}" placeholder="Paste a Google Maps link if the photo has no GPS"></div>
+  </div>
+  <div class="card ${defect?"":"hidden"}" id="w_action">
+    <h3>Follow-up</h3>
+    <div class="fld"><label>Action required</label><textarea id="e_actionRequired" placeholder="Re-compact in 200 mm layers">${esc(d.actionRequired)}</textarea></div>
+    <div class="grid2">
+      <div class="fld"><label>Responsible party</label><input id="e_responsible" list="respList" value="${esc(d.responsible)}" placeholder="Contractor"><datalist id="respList">${settings.responsible.map(a=>`<option value="${esc(a)}">`).join("")}</datalist></div>
+      <div class="fld"><label>Target date</label><input type="date" id="e_dueDate" value="${esc(d.dueDate)}"></div>
+    </div>
+    <div class="grid2">
+      <div class="fld"><label>NCR / SOR</label><select id="e_ncrType">${["None","NCR","SOR"].map(x=>`<option ${x===d.ncrType?"selected":""}>${x}</option>`).join("")}</select></div>
+      <div class="fld"><label>NCR / SOR no.</label><input id="e_ncrNo" value="${esc(d.ncrNo)}" placeholder="NCR-031"></div>
+    </div>
+  </div>
+  <div class="card">
+    <h3>References</h3>
+    <div class="grid2">
+      <div class="fld"><label>RFI no.</label><input id="e_rfi" value="${esc(d.rfi)}" placeholder="1043"></div>
+      <div class="fld"><label>Drawing / rev</label><input id="e_drawing" value="${esc(d.drawing)}" placeholder="SW-201 / C"></div>
+    </div>
+    <div class="grid2">
+      <div class="fld"><label>ITP / spec clause</label><input id="e_itp" value="${esc(d.itp)}"></div>
+      <div class="fld"><label>Contractor rep present</label><input id="e_contractorRep" value="${esc(d.contractorRep)}"></div>
+    </div>
+    <details ${d.weather||d.ground||d.measurements?"open":""}><summary class="small muted" style="cursor:pointer;margin-bottom:8px">More: weather, ground, measurements</summary>
+      <div class="grid2">
+        <div class="fld"><label>Weather</label><select id="e_weather">${["","Clear","Hot","Windy","Dusty","Rain","Humid"].map(x=>`<option ${x===d.weather?"selected":""}>${x}</option>`).join("")}</select></div>
+        <div class="fld"><label>Ground condition</label><select id="e_ground">${["","Dry","Damp","Wet","Water ingress","Rock"].map(x=>`<option ${x===d.ground?"selected":""}>${x}</option>`).join("")}</select></div>
+      </div>
+      <div class="fld"><label>Measurements / test results</label><textarea id="e_measurements" placeholder="Depth 2.4 m, GWL 1.8 m, FDT 96%">${esc(d.measurements)}</textarea></div>
+    </details>
+  </div>
+  <div class="formbar"><button class="btn" id="cancelE">Cancel</button><button class="btn pri" id="saveE">Save record</button></div>`;
+  $("#view").innerHTML=html;
+  renderPhotos();
+  const v=$("#view");
+  v.querySelectorAll("[data-chips]").forEach(row=>row.onclick=e=>{
+    const b=e.target.closest(".chip"); if(!b) return; collect();
+    const k=row.dataset.chips; draft[k] = draft[k]===b.dataset.v && k==="severity" ? "" : b.dataset.v;
+    row.querySelectorAll(".chip").forEach(c=>c.classList.toggle("on", c.dataset.v===draft[k]));
+    const errEl=v.querySelector(`[data-err="${k}"]`); if(errEl) errEl.classList.add("hidden");
+    if(k==="component"){ $("#w_compOther").classList.toggle("hidden",draft.component!=="Other"); $("#w_fromto").classList.toggle("hidden",draft.component!=="Pipeline"); $("#w_asset").classList.toggle("hidden",draft.component==="Pipeline"); }
+    if(k==="obsType"){ const df=DEFECT(draft.obsType); $("#w_sev").classList.toggle("hidden",!df); $("#w_action").classList.toggle("hidden",!df); $("#phReq").classList.toggle("hidden",!df); }
+  });
+  $("#e_activity").onchange=async e=>{
+    if(e.target.value!=="__add") return;
+    const name=await dialog({title:"Add new activity",body:"It's saved to the list for next time.",input:"Thrust boring",ok:"Add"});
+    if(name){ const t=name.trim(); if(!settings.activities.includes(t)){ settings.activities.push(t); await saveSettings(); } collect(); draft.activity=t; renderEdit(); }
+    else e.target.value=draft.activity||"";
+  };
+  $("#e_zone").onchange=()=>{ collect(); renderEdit(); };
+  v.querySelectorAll("input,textarea,select").forEach(i=>i.addEventListener("input",()=>{ const k=i.id.replace("e_",""); const er=v.querySelector(`[data-err="${k}"]`); if(er) er.classList.add("hidden"); }));
+  $("#cancelE").onclick=()=>{ pending.forEach(p=>URL.revokeObjectURL(p.url)); pending=[]; if(route.id) go({v:"detail",id:route.id}); else go({v:"list"}); };
+  $("#saveE").onclick=saveDraft;
+  $("#phIn").onchange=e=>addFiles([...e.target.files]);
+  $("#phCam").onchange=e=>{ addFiles([...e.target.files]).then(()=>{ $("#phCam").value=""; }); };
+  bindLoc();
+}
+function collect(){
+  const ids=["zone","plot","componentOther","asset","from","to","activity","observation","mapLink","actionRequired","responsible","dueDate","ncrType","ncrNo","rfi","drawing","itp","contractorRep","weather","ground","measurements"];
+  for(const k of ids){ const el=$("#e_"+k); if(el && !(k==="activity"&&el.value==="__add")) draft[k]=el.value.trim? el.value.trim(): el.value; }
+  document.querySelectorAll("[data-pcap]").forEach(i=>{ const [src,idx]=i.dataset.pcap.split(":"); (src==="old"?draft.photos:pending)[+idx].caption=i.value; });
+  document.querySelectorAll("[data-ptag]").forEach(i=>{ const [src,idx]=i.dataset.ptag.split(":"); (src==="old"?draft.photos:pending)[+idx].tag=i.value; });
+}
+function renderPhotos(){
+  const el=$("#photos"); if(!el) return;
+  const tagSel=(key,v)=>`<select data-ptag="${key}">${TAGS.map(t=>`<option ${t===v?"selected":""}>${t}</option>`).join("")}</select>`;
+  el.innerHTML = draft.photos.map((p,i)=>`<div class="ph"><img src="${blob(p.prev||p.orig)}" alt=""><span class="tag">${esc(p.tag||"")}</span>${route.id&&draft.status==="Closed"?"":`<button class="x" data-rm="old:${i}" aria-label="Remove photo">×</button>`}<div class="cap"><input data-pcap="old:${i}" value="${esc(p.caption||"")}" placeholder="Caption">${tagSel("old:"+i,p.tag)}</div></div>`).join("")
+   + pending.map((p,i)=>`<div class="ph"><img src="${p.url}" alt=""><span class="tag">New${p.gps?" · GPS":""}</span><button class="x" data-rm="new:${i}" aria-label="Remove photo">×</button><div class="cap"><input data-pcap="new:${i}" value="${esc(p.caption||"")}" placeholder="Caption">${tagSel("new:"+i,p.tag)}</div></div>`).join("")
+   + `<div class="addph" id="addCam" style="border-color:#e8a33d;color:#9a5d00">${ic("camera","lg")}Take photo</div><div class="addph" id="addGal">${ic("photo","lg")}Gallery</div>`;
+  $("#addCam").onclick=()=>$("#phCam").click();
+  $("#addGal").onclick=()=>$("#phIn").click();
+  el.querySelectorAll("[data-rm]").forEach(b=>b.onclick=async()=>{
+    collect(); const [src,idx]=b.dataset.rm.split(":");
+    if(src==="new"){ URL.revokeObjectURL(pending[+idx].url); pending.splice(+idx,1); }
+    else { const ok=await dialog({title:"Remove this photo?",body:"It will be removed from the record when you save.",ok:"Remove",danger:true}); if(!ok) return; draft._removed=(draft._removed||[]).concat([draft.photos[+idx]]); draft.photos.splice(+idx,1); }
+    renderPhotos();
+  });
+}
+async function readGps(file){
+  try{ if(!window.exifr) return null; const g=await exifr.gps(file); if(g && isFinite(g.latitude) && isFinite(g.longitude)) return {lat:g.latitude,lng:g.longitude}; }catch(e){}
+  return null;
+}
+async function addFiles(files){
+  collect();
+  for(const f of files){
+    if(!f.type.startsWith("image/")) continue;
+    const gps=await readGps(f);
+    const defTag = draft.status==="Re-inspected"||draft.status==="Action by contractor" ? "After" : "Before";
+    pending.push({file:f, url:URL.createObjectURL(f), caption:"", tag:defTag, gps});
+    if(gps && !draft.gps){ draft.gps={...gps, src:"photo"}; }
+  }
+  $("#phIn").value="";
+  renderPhotos();
+  if(route.v==="edit"){ const l=$("#locLine"); if(l){ l.innerHTML=locHtml(); bindLoc(); } }
+}
+function shrink(file,max=1600,q=0.82){
+  return new Promise((res,rej)=>{
+    const img=new Image(); const u=URL.createObjectURL(file);
+    img.onload=()=>{ const s=Math.min(1,max/Math.max(img.naturalWidth,img.naturalHeight)); const c=document.createElement("canvas"); c.width=Math.round(img.naturalWidth*s); c.height=Math.round(img.naturalHeight*s);
+      c.getContext("2d").drawImage(img,0,0,c.width,c.height); URL.revokeObjectURL(u); c.toBlob(b=>b?res(b):rej(new Error("encode")),"image/jpeg",q); };
+    img.onerror=()=>{ URL.revokeObjectURL(u); rej(new Error("decode")); };
+    img.src=u;
+  });
+}
+async function uploadOnce(b,type){
+  try{ return await assets.upload(b, type?{type}:undefined); }
+  catch(e){ if(e && e.code==="store_unavailable"){ await new Promise(r=>setTimeout(r,1200)); return await assets.upload(b, type?{type}:undefined); } throw e; }
+}
+function validate(){
+  const errs=[]; const d=draft;
+  if(!d.zone) errs.push("zone"); if(!d.plot) errs.push("plot"); if(!d.component) errs.push("component"); if(!d.activity) errs.push("activity"); if(!d.obsType) errs.push("obsType");
+  if(d.obsType && DEFECT(d.obsType) && (d.photos.length+pending.length)===0) errs.push("photos");
+  document.querySelectorAll("[data-err]").forEach(e=>e.classList.toggle("hidden", !errs.includes(e.dataset.err)));
+  if(errs.length){ const first=document.querySelector(`[data-err="${errs[0]}"]`); first && first.scrollIntoView({behavior:"smooth",block:"center"}); }
+  return !errs.length;
+}
+async function nextNumber(){
+  const ref=db.doc("meta/counter"); const yr=new Date().getFullYear();
+  const snap=await ref.get(); let seq=1;
+  if(snap.exists){ const v=snap.data(); seq = (v.year===yr ? (v.seq||0) : 0) + 1; }
+  // guard against existing numbers (e.g. two devices)
+  const used=new Set(notes.map(n=>n.no));
+  let no; do { no=`SN-${yr}-${pad(seq,5)}`; if(used.has(no)) seq++; else break; } while(true);
+  await ref.set({year:yr, seq});
+  return no;
+}
+let saving=false;
+async function saveDraft(){
+  if(saving) return; collect();
+  if(!validate()) return;
+  if(pending.length && !assets){ toast("Photo upload isn't available in this view."); return; }
+  saving=true; const btn=$("#saveE"); btn.innerHTML='<span class="spin"></span> Saving…'; btn.disabled=true;
+  try{
+    const d=draft; const isNew=!route.id;
+    for(let i=0;i<pending.length;i++){
+      btn.innerHTML=`<span class="spin"></span> Uploading photo ${i+1}/${pending.length}…`;
+      const p=pending[i];
+      let orig=null, prev=null;
+      const okType=["image/jpeg","image/png","image/webp","image/gif"].includes(p.file.type);
+      if(okType && p.file.size<=20*1024*1024){ orig=(await uploadOnce(p.file)).id; }
+      const small=await shrink(p.file); prev=(await uploadOnce(small,"image/jpeg")).id;
+      if(!orig) orig=prev;
+      d.photos.push({orig, prev, caption:p.caption||"", tag:p.tag||"Before", gps:p.gps||null, name:p.file.name||"", addedAt:new Date().toISOString()});
+    }
+    const removed=d._removed||[]; delete d._removed;
+    const stamp=new Date().toISOString();
+    if(isNew){
+      d.no=await nextNumber(); d.createdAt=stamp; d.status = d.obsType==="Info"?"Info":(DEFECT(d.obsType)?"Open":"Closed");
+      if(d.obsType==="Compliant"){ d.status="Closed"; d.closedDate=today(); d.actionTaken=d.actionTaken||"Compliant – no action required"; }
+      d.history=[{at:stamp, what:"Created"}];
+      const ref=db.collection("notes").doc(); d.id=ref.id; const body={...d}; delete body.id;
+      await ref.set(body);
+      lsSet("last",{zone:d.zone,plot:d.plot,asset:d.asset,component:d.component,componentOther:d.componentOther,activity:d.activity,from:d.from,to:d.to,rfi:d.rfi});
+      for(const p of removed){ try{ await assets.delete(p.orig); if(p.prev!==p.orig) await assets.delete(p.prev);}catch(e){} }
+      pending=[]; saving=false; toast("Saved "+d.no); go({v:"detail",id:d.id});
+    } else {
+      const old=notes.find(x=>x.id===route.id)||{};
+      const changed=Object.keys(d).filter(k=>!["history","photos","id"].includes(k) && JSON.stringify(d[k]??"")!==JSON.stringify(old[k]??""));
+      if(pending.length) changed.push(`${pending.length} photo(s) added`);
+      if(removed.length) changed.push(`${removed.length} photo(s) removed`);
+      d.history=(d.history||[]).concat(changed.length?[{at:stamp, what:"Edited: "+changed.join(", ")}]:[]);
+      if(d.obsType==="Info" && d.status!=="Void") d.status="Info";
+      else if(DEFECT(d.obsType) && ["Info"].includes(d.status)) d.status="Open";
+      const body={...d}; delete body.id;
+      await db.collection("notes").doc(route.id).set(body);
+      for(const p of removed){ try{ await assets.delete(p.orig); if(p.prev && p.prev!==p.orig) await assets.delete(p.prev);}catch(e){} }
+      pending=[]; saving=false; toast("Saved"); go({v:"detail",id:route.id});
+    }
+  }catch(e){
+    saving=false; btn.disabled=false; btn.textContent="Save record";
+    const code=e&&e.code;
+    toast(code==="quota_exceeded"||code==="quota_or_state" ? "Phone storage is full. Send to PC and remove old records." : code==="too_large" ? "A photo is too large." : "Couldn't save. Try again.",4000);
+    console.error(e);
+  }
+}
+
+/* ---------- detail ---------- */
+function renderDetail(){
+  const n=notes.find(x=>x.id===route.id);
+  if(!n){ $("#view").innerHTML=`<div class="empty">Record not found.</div>`; return; }
+  $("#title").textContent=n.no;
+  const locked = n.status==="Closed"||n.status==="Void"||n.status==="Info";
+  const defect = DEFECT(n.obsType);
+  const idx=FLOW.indexOf(n.status);
+  const gpsTxt = n.gps ? `${n.gps.lat.toFixed(6)}, ${n.gps.lng.toFixed(6)}${n.gps.acc?" (±"+Math.round(n.gps.acc)+" m)":""}` : "";
+  const mapUrl = n.gps ? `https://www.google.com/maps?q=${n.gps.lat},${n.gps.lng}` : (n.mapLink||"");
+  const row=(k,v)=> v? `<dt>${k}</dt><dd>${v}</dd>`:"";
+  let html=`<div class="card">
+    <div style="display:flex;justify-content:space-between;gap:8px;align-items:flex-start">
+      <div><div class="small muted" style="font-family:ui-monospace,monospace">${esc(n.no)}</div><div style="font-size:17px;font-weight:700;margin:2px 0">${esc(headline(n))}</div>
+      <div class="muted small">${esc(where(n))}</div></div>
+      <div style="text-align:right">${obsBadge(n)}<div style="margin-top:4px">${statusBadge(n)}</div></div>
+    </div>
+    ${defect && n.status!=="Void" ? `<div class="steps">${FLOW.map((s,i)=>`<span class="step ${i<idx?"done":i===idx?"cur":""}">${s}</span>`).join("<span class=muted>›</span>")}</div>`:""}
+    ${isOverdue(n)?`<div class="overdue small">Overdue – target date was ${esc(fmtDate(n.dueDate))}</div>`:""}
+  </div>`;
+  if((n.photos||[]).length) html+=`<div class="card"><h3>Photos (${n.photos.length})</h3><div class="gal">${n.photos.map((p,i)=>`<figure><img src="${blob(p.prev||p.orig)}" data-full="${esc(p.orig)}" alt="${esc(p.caption||"")}"><figcaption><b>${esc(p.tag||"")}</b>${p.caption?" · "+esc(p.caption):""}</figcaption></figure>`).join("")}</div></div>`;
+  html+=`<div class="card"><h3>Details</h3><dl class="dl">
+    ${row("Date / time", esc(fmtDate(n.date)+" "+(n.time||"")))}
+    ${row("Zone", esc(n.zone))}${row("Plot / line", esc(n.plot))}
+    ${row("Component", esc(n.component==="Other"?(n.componentOther||"Other"):n.component))}
+    ${n.component==="Pipeline"? row("From → To", esc((n.from||"?")+" → "+(n.to||"?"))) : row("Asset ref", esc(n.asset))}
+    ${row("Activity", esc(n.activity))}
+    ${row("Type", esc(n.obsType)+(n.severity?" · "+esc(n.severity):""))}
+    ${row("Observation", esc(n.observation))}
+    ${row("Location", mapUrl?`<a href="${esc(mapUrl)}" target="_blank" rel="noopener">${esc(gpsTxt||"Map link")}</a>`:"")}
+    ${row("RFI no.", esc(n.rfi))}${row("Drawing / rev", esc(n.drawing))}${row("ITP / clause", esc(n.itp))}
+    ${row("Contractor rep", esc(n.contractorRep))}${row("Weather", esc(n.weather))}${row("Ground", esc(n.ground))}${row("Measurements", esc(n.measurements))}
+  </dl></div>`;
+  if(defect) html+=`<div class="card"><h3>Follow-up</h3><dl class="dl">
+    ${row("Action required", esc(n.actionRequired)||"<span class=muted>–</span>")}
+    ${row("Responsible", esc(n.responsible))}${row("Target date", esc(fmtDate(n.dueDate)))}
+    ${row("NCR / SOR", n.ncrType&&n.ncrType!=="None"? esc(ncrLabel(n)):"")}
+    ${row("Action taken", esc(n.actionTaken))}${row("Verified by", esc(n.verifiedBy))}${row("Closed on", esc(fmtDate(n.closedDate)))}
+  </dl></div>`;
+  if(n.status==="Void") html+=`<div class="banner">Void: ${esc(n.voidReason||"")}</div>`;
+  const hasB=(n.photos||[]).some(p=>p.tag!=="After"), hasA=(n.photos||[]).some(p=>p.tag==="After");
+  html+=`<div class="card"><h3>Share &amp; report</h3><div style="display:flex;gap:8px;flex-wrap:wrap">
+    ${(n.photos||[]).length?`<button class="btn pri" id="dShare">📤 Share photo${n.photos.length>1?"s":""}</button>`:`<button class="btn pri" id="dShare">📤 Share details image</button>`}
+    ${hasB&&hasA?`<button class="btn" id="dCollage">Before / After collage</button>`:""}
+    <button class="btn" id="dCopy">Copy text</button>
+    <button class="btn" id="dPdf">PDF report</button>
+  </div><div class="small muted" style="margin-top:6px">Opens your phone's share menu – choose WhatsApp and your group. The details text is copied too, in case WhatsApp drops it.</div></div>`;
+  if(canWrite && !archive){
+    html+=`<div class="card"><div style="display:flex;gap:8px;flex-wrap:wrap">`;
+    if(!locked) html+=`<button class="btn" id="dEdit">Edit</button>`;
+    if(defect && !locked && idx<FLOW.length-2) html+=`<button class="btn pri" id="dNext">Mark: ${FLOW[idx+1]}</button>`;
+    if(defect && !locked) html+=`<button class="btn acc" id="dClose">Close record…</button>`;
+    if(n.status==="Closed" && defect) html+=`<button class="btn" id="dReopen">Re-open…</button>`;
+    if(n.status==="Info") html+=`<button class="btn" id="dEdit">Edit</button>`;
+    if(n.status!=="Void") html+=`<button class="btn danger" id="dVoid">Void…</button>`;
+    html+=`</div></div>`;
+  }
+  html+=`<div class="card"><h3>History</h3><div class="hist">${(n.history||[]).slice().reverse().map(h=>`<div><b>${esc(new Date(h.at).toLocaleString())}</b> – ${esc(h.what)}</div>`).join("")}</div></div>`;
+  $("#view").innerHTML=html;
+  document.querySelectorAll(".gal img").forEach(i=>i.onclick=async()=>{ const lb=document.createElement("div"); lb.className="lightbox"; lb.innerHTML=`<img src="${i.src}" alt=""><button class="btn">Close</button>`; let u=null; lb.onclick=()=>{ lb.remove(); if(u) URL.revokeObjectURL(u); }; document.body.appendChild(lb);
+    try{ const b=await getBlob(i.dataset.full); u=URL.createObjectURL(b); $("img",lb).src=u; }catch(e){} });
+  const on=(id,f)=>{ const e=$(id); if(e) e.onclick=f; };
+  on("#dShare",()=>shareRecord(n,"each"));
+  on("#dCollage",()=>shareRecord(n,"collage"));
+  on("#dCopy",()=>copyText(n));
+  on("#dPdf",()=>pdfRecords([n], n.no));
+  on("#dEdit",()=>startEdit(n.id));
+  on("#dNext",()=>setStatus(n, FLOW[idx+1]));
+  on("#dClose",()=>closeRecord(n));
+  on("#dReopen",async()=>{ const r=await dialog({title:"Re-open "+n.no+"?",body:"Give a reason. It's kept in the history.",input:"Defect reappeared",ok:"Re-open"}); if(r) await writeStatus(n,{status:"Re-inspected",closedDate:""},"Re-opened: "+r); });
+  on("#dVoid",async()=>{ const r=await dialog({title:"Void "+n.no+"?",body:"The record stays in the register, marked void. Give a reason.",input:"Duplicate of SN-…",ok:"Void record",danger:true}); if(r) await writeStatus(n,{status:"Void",voidReason:r},"Voided: "+r); });
+}
+async function writeStatus(n, patch, what){
+  try{
+    const body={...n, ...patch}; delete body.id;
+    body.history=(n.history||[]).concat([{at:new Date().toISOString(), what}]);
+    await db.collection("notes").doc(n.id).set(body);
+    toast(what.split(":")[0]);
+  }catch(e){ toast("Couldn't save. Try again."); }
+}
+function setStatus(n,s){ return writeStatus(n,{status:s},"Status → "+s); }
+function closeRecord(n){
+  const hasAfter=(n.photos||[]).some(p=>p.tag==="After");
+  const m=document.createElement("div"); m.className="modal";
+  m.innerHTML=`<div class="box"><h3>Close ${esc(n.no)}</h3>
+    <div class="fld"><label>Action taken *</label><textarea id="cA" placeholder="Re-compacted in 200 mm layers, FDT passed">${esc(n.actionTaken||"")}</textarea></div>
+    <div class="fld"><label>Verified by *</label><input id="cV" value="${esc(n.verifiedBy||lsGet("verifier",""))}" placeholder="Your name"></div>
+    <div class="fld"><label>Closing date</label><input type="date" id="cD" value="${today()}"></div>
+    <div class="fld"><label>After photo ${hasAfter?"(already added ✔)":"*"}</label>${hasAfter?"":`<input type="file" id="cP" accept="image/*" multiple>`}</div>
+    <div class="err hidden" id="cErr"></div>
+    <div style="display:flex;gap:8px;justify-content:flex-end"><button class="btn" id="cC">Cancel</button><button class="btn pri" id="cOk">Close record</button></div></div>`;
+  document.body.appendChild(m);
+  $("#cC",m).onclick=()=>m.remove();
+  $("#cOk",m).onclick=async()=>{
+    const a=$("#cA",m).value.trim(), v=$("#cV",m).value.trim(), dt=$("#cD",m).value; const files=$("#cP",m)?[...$("#cP",m).files]:[];
+    const err=$("#cErr",m);
+    if(!a||!v||(!hasAfter&&!files.length)){ err.textContent="Fill in the action taken, verified by, and add an after photo."; err.classList.remove("hidden"); return; }
+    if(files.length && !assets){ err.textContent="Photo upload isn't available in this view."; err.classList.remove("hidden"); return; }
+    const ok=$("#cOk",m); ok.disabled=true; ok.innerHTML='<span class="spin"></span> Saving…';
+    try{
+      const photos=(n.photos||[]).slice();
+      for(const f of files){ const gps=await readGps(f); let orig=null; if(["image/jpeg","image/png","image/webp"].includes(f.type)&&f.size<=20*1024*1024) orig=(await uploadOnce(f)).id; const prev=(await uploadOnce(await shrink(f),"image/jpeg")).id; photos.push({orig:orig||prev,prev,caption:"After",tag:"After",gps,name:f.name||"",addedAt:new Date().toISOString()}); }
+      lsSet("verifier",v);
+      await writeStatus(n,{status:"Closed",actionTaken:a,verifiedBy:v,closedDate:dt,photos},"Closed by "+v);
+      m.remove();
+    }catch(e){ ok.disabled=false; ok.textContent="Close record"; err.textContent="Couldn't save. Try again."; err.classList.remove("hidden"); }
+  };
+}
+
+/* ---------- share image / copy text / PDF ---------- */
+let downloads=null;
+async function getBlob(id){
+  if(id && String(id).startsWith("zip:")){ const u=zipUrls[id.slice(4)]; if(!u) throw new Error("missing"); return await (await fetch(u)).blob(); }
+  const b=await IDB.get("files",id); if(!b) throw new Error("missing"); return b;
+}
+async function loadImg(id){
+  const b=await getBlob(id); const u=URL.createObjectURL(b);
+  return await new Promise((res,rej)=>{ const im=new Image(); im.onload=()=>res(im); im.onerror=()=>rej(new Error("decode")); im.src=u; });
+}
+function statusInfo(n){
+  if(n.status==="Void") return {t:"Void", c:"#777777"};
+  if(n.status==="Info") return {t:"Info – for record", c:"#1f5fa8"};
+  if(n.status==="Closed") return {t:"Closed"+(n.closedDate?" · "+fmtDate(n.closedDate):""), c:"#2f7a3b"};
+  const bad=["Major defect","Safety","Utility damage"].includes(n.obsType);
+  return {t:(n.obsType||"")+" · "+(n.status||"Open"), c: bad?"#a32d2d":"#b7791f"};
+}
+function ncrLabel(n){ const no=(n.ncrNo||"").trim(); return no && no.toUpperCase().startsWith(n.ncrType) ? no : (n.ncrType+" "+no).trim(); }
+function compName(n){ return n.component==="Other"?(n.componentOther||"Other"):n.component; }
+function infoLines(n){
+  const L=[];
+  L.push(["", [ "Zone "+n.zone, n.plot&&("Plot/Line "+n.plot), compName(n), n.component!=="Pipeline"&&n.asset ].filter(Boolean).join(" · ")]);
+  if(n.observation) L.push(["Obs:", n.observation]);
+  if(n.status==="Closed" && n.actionTaken) L.push(["Action taken:", n.actionTaken]);
+  else if(DEFECT(n.obsType) && n.actionRequired) L.push(["Action:", [n.actionRequired, n.responsible, n.dueDate&&("Due "+fmtDate(n.dueDate))].filter(Boolean).join(" · ")]);
+  if(n.status==="Closed" && n.verifiedBy) L.push(["Verified by:", n.verifiedBy]);
+  const refs=[n.rfi&&("RFI "+n.rfi), n.ncrType&&n.ncrType!=="None"&&ncrLabel(n), n.drawing&&("Dwg "+n.drawing), n.gps&&("GPS "+n.gps.lat.toFixed(5)+", "+n.gps.lng.toFixed(5))].filter(Boolean).join(" · ");
+  if(refs) L.push(["", refs]);
+  return L;
+}
+function shareText(n){
+  const s=statusInfo(n);
+  const lines=[`*${n.no}* – ${headline(n)}`, `${fmtDate(n.date)} ${n.time||""}`, `Status: ${s.t}${n.severity?" ("+n.severity+")":""}`];
+  infoLines(n).forEach(([k,v])=>lines.push((k?k+" ":"")+v));
+  if(n.gps) lines.push(`Map: https://www.google.com/maps?q=${n.gps.lat},${n.gps.lng}`);
+  else if(n.mapLink) lines.push("Map: "+n.mapLink);
+  lines.push("", settings.project.replace(/\n/g,", ")+(settings.company?" – "+settings.company:""));
+  return lines.join("\n");
+}
+function wrapText(ctx,text,maxW){
+  const out=[]; String(text).split("\n").forEach(par=>{ let line=""; for(const w of par.split(/\s+/)){ const t=line?line+" "+w:w; if(ctx.measureText(t).width>maxW && line){ out.push(line); line=w; } else line=t; } out.push(line); });
+  return out;
+}
+function coverDraw(ctx,img,x,y,w,h){
+  const s=Math.max(w/img.naturalWidth,h/img.naturalHeight); const sw=w/s, sh=h/s;
+  ctx.drawImage(img,(img.naturalWidth-sw)/2,(img.naturalHeight-sh)/2,sw,sh,x,y,w,h);
+}
+function pill(ctx,text,xRight,y,color){
+  ctx.font="600 26px system-ui,sans-serif"; const w=ctx.measureText(text).width+32;
+  ctx.fillStyle=color; const x=xRight-w, h=42, r=21;
+  ctx.beginPath(); ctx.moveTo(x+r,y); ctx.arcTo(x+w,y,x+w,y+h,r); ctx.arcTo(x+w,y+h,x,y+h,r); ctx.arcTo(x,y+h,x,y,r); ctx.arcTo(x,y,x+w,y,r); ctx.fill();
+  ctx.fillStyle="#fff"; ctx.fillText(text,x+16,y+30); return w;
+}
+async function buildImage(n, photos, mode, idx, total){
+  const W=1080, P=40; const c=document.createElement("canvas"); const ctx=c.getContext("2d");
+  // strip layout first (measure)
+  ctx.font="30px system-ui,sans-serif";
+  const lines=[]; for(const [k,v] of infoLines(n)){ const wl=wrapText(ctx,(k?k+" ":"")+v,W-2*P); wl.forEach((t,i)=>lines.push({t,k:i===0?k:""})); }
+  const foot=settings.project.split("\n").concat(settings.company?[settings.company]:[]);
+  const stripH = P + 50 + 16 + lines.length*42 + 24 + foot.length*30 + P;
+  let photoH=0;
+  if(mode==="collage") photoH=640;
+  else if(photos.length===1){ const im=photos[0].img; photoH=Math.round(Math.min(1350,Math.max(600,W*im.naturalHeight/im.naturalWidth))); }
+  c.width=W; c.height=photoH+stripH;
+  ctx.fillStyle="#14202a"; ctx.fillRect(0,0,W,c.height);
+  if(mode==="collage"){
+    photos.forEach((p,i)=>{ const x=i*(W/2+1); coverDraw(ctx,p.img,x,0,W/2-1,photoH);
+      ctx.fillStyle=p.tag==="After"?"#3B6D11":"#A32D2D"; ctx.fillRect(x,0,W/2-1,54);
+      ctx.fillStyle="#fff"; ctx.font="600 28px system-ui,sans-serif"; ctx.fillText(p.tag+(p.date?" · "+fmtDate(p.date):""),x+18,37); });
+  } else if(photos.length===1){
+    const p=photos[0]; coverDraw(ctx,p.img,0,0,W,photoH);
+    ctx.fillStyle="rgba(0,0,0,.5)"; ctx.fillRect(0,0,W,56);
+    ctx.fillStyle="#fff"; ctx.font="26px system-ui,sans-serif";
+    ctx.fillText(`${n.no} · Photo ${idx} of ${total}${p.tag?" · "+p.tag:""}`,18,37);
+    const dt=fmtDate(n.date)+" "+(n.time||""); ctx.textAlign="right"; ctx.fillText(dt,W-18,37); ctx.textAlign="left";
+    if(p.caption){ ctx.fillStyle="rgba(0,0,0,.5)"; ctx.font="28px system-ui,sans-serif"; const cl=wrapText(ctx,p.caption,W-40).slice(0,2); ctx.fillRect(0,photoH-20-cl.length*38,W,20+cl.length*38); ctx.fillStyle="#fff"; cl.forEach((t,i)=>ctx.fillText(t,20,photoH-16-(cl.length-1-i)*38)); }
+  }
+  let y=photoH+P;
+  const s=statusInfo(n); const pw=pill(ctx,s.t,W-P,y,s.c);
+  ctx.fillStyle="#fff"; ctx.font="700 36px system-ui,sans-serif";
+  let head=(mode==="collage"||!photos.length? n.no+" · ":"")+headline(n);
+  while(ctx.measureText(head).width>W-2*P-pw-16 && head.length>10) head=head.slice(0,-2);
+  if(head!==(mode==="collage"||!photos.length? n.no+" · ":"")+headline(n)) head=head.trim()+"…";
+  ctx.fillText(head,P,y+34); y+=50+16;
+  ctx.font="30px system-ui,sans-serif";
+  for(const l of lines){ if(l.k){ ctx.fillStyle="#9fb0bb"; ctx.fillText(l.k,P,y+30); const kw=ctx.measureText(l.k+" ").width; ctx.fillStyle="#ffffff"; ctx.fillText(l.t.slice(l.k.length+1),P+kw,y+30); } else { ctx.fillStyle="#d7e0e6"; ctx.fillText(l.t,P,y+30); } y+=42; }
+  y+=8; ctx.strokeStyle="#33444f"; ctx.lineWidth=2; ctx.beginPath(); ctx.moveTo(P,y); ctx.lineTo(W-P,y); ctx.stroke(); y+=16;
+  ctx.fillStyle="#8a9ba6"; ctx.font="24px system-ui,sans-serif"; foot.forEach(f=>{ ctx.fillText(f,P,y+24); y+=30; });
+  return await new Promise(r=>c.toBlob(r,"image/jpeg",0.9));
+}
+const MIME={jpg:"image/jpeg",png:"image/png",pdf:"application/pdf",xlsx:"application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",zip:"application/zip",txt:"text/plain"};
+function asFile(name,data){ const ext=name.split(".").pop().toLowerCase(); const b=data instanceof Blob?data:new Blob([data]); return new File([b],name,{type:MIME[ext]||b.type||"application/octet-stream"}); }
+function downloadFile(f){ const u=URL.createObjectURL(f); const a=document.createElement("a"); a.href=u; a.download=f.name; document.body.appendChild(a); a.click(); a.remove(); setTimeout(()=>URL.revokeObjectURL(u),60000); }
+async function shareFiles(files,text){
+  if(navigator.canShare && navigator.share){
+    const payload={files}; if(text) payload.text=text;
+    try{ if(navigator.canShare(payload)){ await navigator.share(payload); return true; } }
+    catch(e){ if(e && e.name==="AbortError") return false; }
+  }
+  files.forEach((f,i)=>setTimeout(()=>downloadFile(f),i*400)); return true;
+}
+async function saveFile(name,data,text){ return shareFiles([asFile(name,data)],text); }
+async function shareRecord(n,mode){
+  const text=shareText(n);
+  try{ navigator.clipboard && navigator.clipboard.writeText(text).catch(()=>{}); }catch(e){}
+  toast("Preparing image…",1500);
+  try{
+    const ph=n.photos||[]; const files=[];
+    if(mode==="collage"){
+      const b=ph.find(p=>p.tag!=="After"), a=ph.slice().reverse().find(p=>p.tag==="After");
+      const imgs=[{img:await loadImg(b.prev||b.orig),tag:b.tag||"Before",date:(b.addedAt||"").slice(0,10)},{img:await loadImg(a.prev||a.orig),tag:"After",date:(n.closedDate||(a.addedAt||"").slice(0,10))}];
+      files.push(asFile(`${n.no}_before-after.jpg`, await buildImage(n,imgs,"collage")));
+    } else if(!ph.length){ files.push(asFile(`${n.no}.jpg`, await buildImage(n,[],"none"))); }
+    else for(let i=0;i<ph.length;i++){ const p=ph[i]; const img=await loadImg(p.prev||p.orig);
+      files.push(asFile(`${n.no}_${i+1}${p.tag?"_"+p.tag.toLowerCase():""}.jpg`, await buildImage(n,[{img,tag:p.tag,caption:p.caption}],"single",i+1,ph.length))); }
+    await shareFiles(files,text);
+  }catch(e){ console.error(e); toast("Couldn't prepare the image. Try again.",3500); }
+}
+async function copyText(n){
+  const t=shareText(n);
+  try{ await navigator.clipboard.writeText(t); toast("Copied – paste it in WhatsApp"); return; }catch(e){}
+  const m=document.createElement("div"); m.className="modal";
+  m.innerHTML=`<div class="box"><h3>Copy this text</h3><textarea style="min-height:220px">${esc(t)}</textarea><div style="display:flex;justify-content:flex-end;margin-top:10px"><button class="btn pri">Done</button></div></div>`;
+  document.body.appendChild(m); const ta=$("textarea",m); ta.focus(); ta.select(); $("button",m).onclick=()=>m.remove();
+}
+let jsPdfP=null;
+function loadJsPdf(){
+  if(window.jspdf) return Promise.resolve();
+  if(!jsPdfP) jsPdfP=new Promise((res,rej)=>{ const s=document.createElement("script"); s.src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"; s.onload=res; s.onerror=()=>{ jsPdfP=null; rej(new Error("jspdf")); }; document.head.appendChild(s); });
+  return jsPdfP;
+}
+function pdfSafe(s){ return String(s??"").replace(/→/g,"->").replace(/[“”]/g,'"').replace(/[‘’]/g,"'").replace(/[^\x09\x0A\x0D\x20-\x7E -ÿ–—•…€]/g,""); }
+async function imgData(id,max=1000){
+  const im=await loadImg(id); const s=Math.min(1,max/Math.max(im.naturalWidth,im.naturalHeight));
+  const c=document.createElement("canvas"); c.width=Math.round(im.naturalWidth*s); c.height=Math.round(im.naturalHeight*s);
+  c.getContext("2d").drawImage(im,0,0,c.width,c.height); return {url:c.toDataURL("image/jpeg",0.82), w:c.width, h:c.height};
+}
+async function pdfRecords(list, name, title){
+  toast("Preparing PDF…",2000);
+  try{ await loadJsPdf(); }catch(e){ toast("Couldn't load the PDF tool. Check your connection."); return; }
+  const { jsPDF } = window.jspdf; const doc=new jsPDF({unit:"mm",format:"a4"});
+  const PW=210, M=14, CW=PW-2*M; let y=0;
+  const proj=settings.project.split("\n");
+  const header=()=>{ doc.setFillColor(20,50,77); doc.rect(0,0,PW,20,"F"); doc.setTextColor(255); doc.setFont("helvetica","bold"); doc.setFontSize(11); doc.text(pdfSafe(proj[0]||""),M,9);
+    doc.setFont("helvetica","normal"); doc.setFontSize(8.5); doc.text(pdfSafe((proj[1]||"")+(settings.company?"  |  "+settings.company:"")),M,15);
+    doc.text(pdfSafe(title||"Site record"),PW-M,9,{align:"right"}); doc.text("Printed "+fmtDate(today()),PW-M,15,{align:"right"}); doc.setTextColor(20); y=28; };
+  const need=h=>{ if(y+h>282){ doc.addPage(); header(); } };
+  for(let r=0;r<list.length;r++){
+    const n=list[r]; if(r>0) doc.addPage(); header();
+    const s=statusInfo(n);
+    doc.setFont("helvetica","bold"); doc.setFontSize(14); doc.text(pdfSafe(n.no),M,y);
+    const hex=s.c.replace("#",""); doc.setFillColor(parseInt(hex.slice(0,2),16),parseInt(hex.slice(2,4),16),parseInt(hex.slice(4,6),16));
+    doc.setFontSize(9); const sw=doc.getTextWidth(pdfSafe(s.t))+6; doc.roundedRect(PW-M-sw,y-5,sw,7,3,3,"F"); doc.setTextColor(255); doc.text(pdfSafe(s.t),PW-M-sw+3,y-0.2); doc.setTextColor(20);
+    y+=7; doc.setFontSize(12); const hl=doc.splitTextToSize(pdfSafe(headline(n)),CW); doc.text(hl,M,y); y+=hl.length*5.5+2;
+    const rows=[["Date / time",fmtDate(n.date)+" "+(n.time||"")],["Zone",n.zone],["Plot / line",n.plot],["Component",compName(n)],
+      n.component==="Pipeline"?["From -> To",(n.from||"?")+" -> "+(n.to||"?")]:["Asset ref",n.asset],["Activity",n.activity],["Observation type",(n.obsType||"")+(n.severity?" ("+n.severity+")":"")],
+      ["Observation",n.observation],["Location",n.gps?`${n.gps.lat.toFixed(6)}, ${n.gps.lng.toFixed(6)}`:(n.mapLink||"")],["RFI no.",n.rfi],["Drawing / rev",n.drawing],["ITP / clause",n.itp],["Contractor rep",n.contractorRep],
+      ["Weather",n.weather],["Ground",n.ground],["Measurements",n.measurements]];
+    if(DEFECT(n.obsType)) rows.push(["Action required",n.actionRequired],["Responsible",n.responsible],["Target date",fmtDate(n.dueDate)],["NCR / SOR",n.ncrType&&n.ncrType!=="None"?ncrLabel(n):""],["Action taken",n.actionTaken],["Verified by",n.verifiedBy],["Closed on",fmtDate(n.closedDate)]);
+    if(n.status==="Void") rows.push(["Void reason",n.voidReason]);
+    doc.setFontSize(9.5);
+    for(const [k,v] of rows){ if(!v) continue; const vl=doc.splitTextToSize(pdfSafe(v),CW-42); need(vl.length*4.6+2);
+      doc.setFont("helvetica","bold"); doc.setTextColor(93,107,120); doc.text(pdfSafe(k),M,y); doc.setFont("helvetica","normal"); doc.setTextColor(20); doc.text(vl,M+42,y);
+      y+=vl.length*4.6+1.6; doc.setDrawColor(225); doc.line(M,y-1.2,PW-M,y-1.2); }
+    const ph=n.photos||[];
+    if(ph.length){ y+=4; need(10); doc.setFont("helvetica","bold"); doc.setFontSize(11); doc.text(`Photos (${ph.length})`,M,y); y+=4; doc.setFont("helvetica","normal"); doc.setFontSize(8.5);
+      const colW=(CW-6)/2;
+      for(let i=0;i<ph.length;i+=2){
+        const pair=[]; for(const p of ph.slice(i,i+2)){ try{ pair.push({p,d:await imgData(p.prev||p.orig)}); }catch(e){ pair.push({p,d:null}); } }
+        const hs=pair.map(o=>o.d?Math.min(75,colW*o.d.h/o.d.w):20); const rowH=Math.max(...hs)+9; need(rowH);
+        pair.forEach((o,j)=>{ const x=M+j*(colW+6); if(o.d){ const w=Math.min(colW, hs[j]*o.d.w/o.d.h); doc.addImage(o.d.url,"JPEG",x,y,w,hs[j]); } else doc.text("(photo unavailable)",x,y+8);
+          const cap=doc.splitTextToSize(pdfSafe(`${i+j+1}. ${o.p.tag||""}${o.p.caption?" – "+o.p.caption:""}`),colW); doc.setTextColor(93,107,120); doc.text(cap[0],x,y+hs[j]+4); doc.setTextColor(20); });
+        y+=rowH;
+      }
+    }
+    if((n.history||[]).length){ y+=3; need(12); doc.setFont("helvetica","bold"); doc.setFontSize(10); doc.text("History",M,y); y+=4.5; doc.setFont("helvetica","normal"); doc.setFontSize(8);
+      for(const h of n.history){ const t=doc.splitTextToSize(pdfSafe(new Date(h.at).toLocaleString()+" – "+h.what),CW); need(t.length*3.8+1); doc.text(t,M,y); y+=t.length*3.8+0.6; } }
+  }
+  const pages=doc.getNumberOfPages();
+  for(let i=1;i<=pages;i++){ doc.setPage(i); doc.setFontSize(8); doc.setTextColor(130); doc.text(pdfSafe(proj.join(", ")),M,290); doc.text(`Page ${i} of ${pages}`,PW-M,290,{align:"right"}); }
+  const ok=await saveFile(`${name}.pdf`, doc.output("blob"));
+  if(ok) toast("PDF ready");
+}
+
+/* ---------- transfer to PC, archive, reports ---------- */
+const libP={};
+function loadLib(url,check){ if(check()) return Promise.resolve(); if(!libP[url]) libP[url]=new Promise((res,rej)=>{ const s=document.createElement("script"); s.src=url; s.onload=res; s.onerror=()=>{ delete libP[url]; rej(new Error(url)); }; document.head.appendChild(s); }); return libP[url]; }
+const loadZip=()=>loadLib("https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js",()=>!!window.JSZip);
+const loadXlsx=()=>loadLib("https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js",()=>!!window.XLSX);
+function lastChange(n){ const h=n.history||[]; return h.length? h[h.length-1].at : (n.createdAt||""); }
+function needsTransfer(n){ return !n.transferredAt || lastChange(n) > n.transferredAt; }
+function stamp(){ const d=new Date(); return `${today()}_${pad(d.getHours())}${pad(d.getMinutes())}`; }
+const COLS=["Record No","Date","Time","Zone","Plot / Line","Component","Asset ref","From","To","Activity","Observation type","Severity","Observation","Status","Action required","Responsible","Target date","Overdue","NCR / SOR","RFI No","Drawing / rev","ITP / clause","Contractor rep","Weather","Ground","Measurements","Action taken","Verified by","Closed date","Void reason","GPS lat","GPS lng","Map link","Photos","Photo files","Created","Last change"];
+function rowOf(n){ return [n.no,n.date,n.time,n.zone,n.plot,compName(n),n.asset,n.from,n.to,n.activity,n.obsType,n.severity,n.observation,n.status,n.actionRequired,n.responsible,n.dueDate,isOverdue(n)?"Yes":"",n.ncrType&&n.ncrType!=="None"?ncrLabel(n):"",n.rfi,n.drawing,n.itp,n.contractorRep,n.weather,n.ground,n.measurements,n.actionTaken,n.verifiedBy,n.closedDate,n.voidReason,n.gps?n.gps.lat:"",n.gps?n.gps.lng:"",n.gps?`https://www.google.com/maps?q=${n.gps.lat},${n.gps.lng}`:(n.mapLink||""),(n.photos||[]).length,(n.photos||[]).map(p=>p.file||"").filter(Boolean).join("; "),(n.createdAt||"").replace("T"," ").slice(0,16),lastChange(n).replace("T"," ").slice(0,16)].map(v=>v??""); }
+function workbook(list){
+  const XLSX=window.XLSX; const wb=XLSX.utils.book_new();
+  const sorted=list.slice().sort((a,b)=>(a.no||"").localeCompare(b.no||""));
+  const ws=XLSX.utils.aoa_to_sheet([COLS,...sorted.map(rowOf)]);
+  ws["!cols"]=COLS.map(c=>({wch:["Observation","Action required","Action taken","Measurements","Photo files","Map link"].includes(c)?40:Math.max(10,c.length+2)}));
+  ws["!autofilter"]={ref:XLSX.utils.encode_range({s:{r:0,c:0},e:{r:sorted.length,c:COLS.length-1}})}; ws["!freeze"]={xSplit:1,ySplit:1};
+  XLSX.utils.book_append_sheet(wb,ws,"Register");
+  const zs=[["Zone","Open","Overdue","Closed","NCR / SOR","Info","Void","Total"]];
+  const zones=[...new Set([...settings.zones,...list.map(n=>n.zone).filter(Boolean)])];
+  for(const z of zones){ const L=list.filter(n=>n.zone===z); const c=counts(L); zs.push([z,c.open,c.overdue,c.closed,c.ncr,c.info,L.filter(n=>n.status==="Void").length,L.length]); }
+  const t=counts(list); zs.push(["TOTAL",t.open,t.overdue,t.closed,t.ncr,t.info,list.filter(n=>n.status==="Void").length,list.length]);
+  XLSX.utils.book_append_sheet(wb,XLSX.utils.aoa_to_sheet(zs),"Zone summary");
+  const ncr=[["Record No","NCR / SOR","Date","Zone","Plot / Line","Asset / From-To","Activity","Observation","Responsible","Target date","Status","Closed date"]];
+  sorted.filter(n=>n.ncrType&&n.ncrType!=="None").forEach(n=>ncr.push([n.no,ncrLabel(n),n.date,n.zone,n.plot,n.component==="Pipeline"?`${n.from||""} -> ${n.to||""}`:n.asset,n.activity,n.observation,n.responsible,n.dueDate,n.status,n.closedDate]));
+  XLSX.utils.book_append_sheet(wb,XLSX.utils.aoa_to_sheet(ncr),"NCR-SOR register");
+  return XLSX.write(wb,{bookType:"xlsx",type:"array"});
+}
+async function excelOnly(list,name){
+  toast("Preparing Excel…",1500);
+  try{ await loadXlsx(); }catch(e){ toast("Couldn't load the Excel tool. Check your connection."); return; }
+  const ok=await saveFile(name+".xlsx", new Blob([workbook(list)])); if(ok) toast("Excel ready");
+}
+function setProg(t){ const e=$("#tProg"); if(e) e.innerHTML=t; }
+async function transfer(scope){
+  const list = scope==="all" ? liveNotes.slice() : liveNotes.filter(needsTransfer);
+  if(!list.length){ toast("Nothing new to send."); return; }
+  try{ setProg('<span class="spin"></span> Loading tools…'); await Promise.all([loadZip(),loadXlsx()]); }catch(e){ setProg(""); toast("Couldn't load the export tools. Check your connection."); return; }
+  const zip=new JSZip(); const recs=[]; let done=0, total=list.reduce((a,n)=>a+(n.photos||[]).length,0), failed=0;
+  for(const n of list){
+    const folder=`Records/${(n.zone||"No zone").replace(/[\\/:*?"<>|]/g,"-")}/${n.no}`;
+    const r=JSON.parse(JSON.stringify(n)); delete r.id;
+    for(let i=0;i<(r.photos||[]).length;i++){
+      const p=r.photos[i]; setProg(`<span class="spin"></span> Photo ${++done} of ${total}…`);
+      try{ const b=await getBlob(p.orig||p.prev);
+        const ext=/png/.test(b.type)?"png":/webp/.test(b.type)?"webp":"jpg"; const fn=`${n.no}_${pad(i+1)}${p.tag?"_"+p.tag.toLowerCase():""}.${ext}`;
+        zip.file(`${folder}/${fn}`,b); p.file=`${folder}/${fn}`; }
+      catch(e){ failed++; p.file=""; }
+    }
+    zip.file(`${folder}/${n.no}_details.txt`, shareText(n));
+    recs.push(r);
+  }
+  setProg('<span class="spin"></span> Building register…');
+  zip.file("Site_Notes_Register.xlsx", workbook(recs));
+  zip.file("archive.json", JSON.stringify({app:"site-notes",format:1,exportedAt:new Date().toISOString(),project:settings.project,scope,records:recs},null,1));
+  zip.file("READ ME.txt", `Site Notes export ${stamp()}\n${settings.project}\n\nRecords: ${recs.length}\nPhotos: ${total-failed}${failed?` (${failed} could not be copied)`:""}\n\n- Site_Notes_Register.xlsx: register, zone summary, NCR/SOR register\n- Records\\<zone>\\<record no>\\: original photos and details\n- archive.json: keep this zip in D:\\SITE NOTES APP RECORD\\Archive. Open it in the app (PC / Settings > Open old records) to view these records with photos.\n`);
+  setProg('<span class="spin"></span> Compressing…');
+  const out=await zip.generateAsync({type:"blob",compression:"STORE"});
+  setProg("");
+  const ok=await saveFile(`SiteNotes_${stamp()}.zip`, out);
+  if(!ok) return;
+  const at=new Date().toISOString();
+  for(const n of list){ try{ const body={...n, transferredAt:at}; delete body.id; await db.collection("notes").doc(n.id).set(body); }catch(e){} }
+  toast(`Sent ${list.length} record${list.length>1?"s":""}${failed?` (${failed} photo(s) failed)`:""}. Save the zip in D:\\SITE NOTES APP RECORD on your PC.`,6000);
+  if(route.v==="reports") renderPcTools();
+}
+async function cleanupOnline(){
+  const cutoff=new Date(Date.now()-30*864e5).toISOString();
+  const due=liveNotes.filter(n=>n.transferredAt && n.transferredAt<cutoff && !needsTransfer(n) && ["Closed","Info","Void"].includes(n.status));
+  if(!due.length){ toast("Nothing to clear yet."); return; }
+  const ok=await dialog({title:`Remove ${due.length} record${due.length>1?"s":""} from this phone?`,body:"These were sent to your PC more than 30 days ago and are closed, info or void. Make sure the zip files are saved on your PC – you can still open them there. This can't be undone on the phone.",ok:"Remove from phone",danger:true});
+  if(!ok) return;
+  let n_=0; for(const n of due){ try{ for(const p of n.photos||[]){ try{ await assets.delete(p.orig); if(p.prev&&p.prev!==p.orig) await assets.delete(p.prev);}catch(e){} } await db.collection("notes").doc(n.id).delete(); n_++; }catch(e){} }
+  toast(`Removed ${n_} record(s) from this phone.`); renderPcTools();
+}
+async function openArchives(files){
+  try{ await loadZip(); }catch(e){ toast("Couldn't load the zip tool. Check your connection."); return; }
+  closeArchive(true);
+  const recs=[]; const names=[];
+  for(const f of files){
+    try{
+      const z=await JSZip.loadAsync(f); const j=z.file("archive.json"); if(!j) { toast(f.name+" isn't a Site Notes archive."); continue; }
+      const data=JSON.parse(await j.async("string")); names.push(f.name);
+      for(const r of data.records||[]){
+        for(const p of r.photos||[]){ if(p.file && z.file(p.file)){ const b=await z.file(p.file).async("blob"); const typ=p.file.endsWith(".png")?"image/png":"image/jpeg"; const key=f.name+"|"+p.file; zipUrls[key]=URL.createObjectURL(new Blob([b],{type:typ})); p.orig=p.prev="zip:"+key; } else { p.orig=p.prev="zip:missing"; } }
+        r.id="arch:"+f.name+":"+r.no;
+        const i=recs.findIndex(x=>x.no===r.no); if(i>=0){ if(lastChange(r)>=lastChange(recs[i])) recs[i]=r; } else recs.push(r);
+      }
+    }catch(e){ toast("Couldn't open "+f.name); }
+  }
+  if(!recs.length) return;
+  archive={names,count:recs.length}; notes=recs; zone="All"; statFilter=""; go({v:"list"});
+}
+function closeArchive(silent){
+  Object.values(zipUrls).forEach(u=>URL.revokeObjectURL(u)); zipUrls={};
+  if(archive){ archive=null; notes=liveNotes; if(silent!==true) go({v:"list"}); }
+}
+function tablePdf(title, cols, rows, name, widths){
+  return (async()=>{
+    toast("Preparing PDF…",1500);
+    try{ await loadJsPdf(); }catch(e){ toast("Couldn't load the PDF tool. Check your connection."); return; }
+    const { jsPDF } = window.jspdf; const doc=new jsPDF({unit:"mm",format:"a4",orientation:"landscape"});
+    const PW=297, M=10, CW=PW-2*M; const proj=settings.project.split("\n"); let y;
+    const tw=widths.reduce((a,b)=>a+b,0); const W=widths.map(w=>w*CW/tw);
+    const head=()=>{ doc.setFillColor(20,50,77); doc.rect(0,0,PW,18,"F"); doc.setTextColor(255); doc.setFont("helvetica","bold"); doc.setFontSize(11); doc.text(pdfSafe(title),M,8);
+      doc.setFont("helvetica","normal"); doc.setFontSize(8.5); doc.text(pdfSafe(proj.join(", ")),M,14); doc.text("Printed "+fmtDate(today()),PW-M,8,{align:"right"});
+      y=24; doc.setFillColor(232,238,243); doc.rect(M,y-4,CW,7,"F"); doc.setTextColor(20); doc.setFont("helvetica","bold"); doc.setFontSize(8);
+      let x=M; cols.forEach((c,i)=>{ doc.text(pdfSafe(c),x+1,y); x+=W[i]; }); y+=5; doc.setFont("helvetica","normal"); };
+    head();
+    if(!rows.length){ doc.setFontSize(10); doc.text("No records.",M,y+4); }
+    for(const r of rows){
+      const cells=r.map((v,i)=>doc.splitTextToSize(pdfSafe(v),W[i]-2)); const h=Math.max(...cells.map(c=>c.length))*3.6+1.8;
+      if(y+h>200){ doc.addPage(); head(); }
+      let x=M; cells.forEach((c,i)=>{ doc.text(c,x+1,y+2.6); x+=W[i]; }); y+=h; doc.setDrawColor(220); doc.line(M,y-0.6,PW-M,y-0.6);
+    }
+    const pages=doc.getNumberOfPages(); for(let i=1;i<=pages;i++){ doc.setPage(i); doc.setFontSize(8); doc.setTextColor(130); doc.text(`Page ${i} of ${pages}`,PW-M,205,{align:"right"}); }
+    const ok=await saveFile(name+".pdf", doc.output("blob")); if(ok) toast("PDF ready");
+  })();
+}
+function renderPcTools(){
+  const el=$("#pcTools"); if(!el) return;
+  const pendingN=liveNotes.filter(needsTransfer).length;
+  const last=liveNotes.map(n=>n.transferredAt||"").sort().pop();
+  const cutoff=new Date(Date.now()-30*864e5).toISOString();
+  const clearN=liveNotes.filter(n=>n.transferredAt && n.transferredAt<cutoff && !needsTransfer(n) && ["Closed","Info","Void"].includes(n.status)).length;
+  const zOpt=`<option value="All">All zones</option>`+settings.zones.map(z=>`<option ${z===zone?"selected":""}>${esc(z)}</option>`).join("");
+  el.innerHTML=`
+  <div class="card"><h3>Send to PC</h3>
+    <div class="small" style="margin-bottom:8px"><b>${pendingN}</b> new or changed record${pendingN===1?"":"s"} not yet sent${last?` (last sent ${esc(new Date(last).toLocaleString())})`:""}. ${liveNotes.length} record${liveNotes.length===1?"":"s"} on this device.</div>
+    <div style="display:flex;gap:8px;flex-wrap:wrap"><button class="btn pri" id="tNew" ${archive?"disabled":""}>Send new &amp; changed</button><button class="btn" id="tAll" ${archive?"disabled":""}>Send all records</button></div>
+    <div class="small" id="tProg" style="margin-top:8px"></div>
+    <div class="small muted" style="margin-top:6px">Makes one zip: Excel register (with zone summary and NCR/SOR sheets), original photos in <code>Records\\zone\\record no\\</code>, and an archive file. On the phone, choose <b>WhatsApp</b> (send to yourself), <b>Gmail</b> or <b>Google Drive</b>, then on the PC save it in <b>D:\\SITE NOTES APP RECORD</b>. On a PC it downloads straight away.</div>
+    ${clearN?`<div class="banner" style="margin-top:10px">${clearN} record${clearN>1?"s were":" was"} sent to PC over 30 days ago. <button class="btn sm" id="tClean">Remove from this phone…</button></div>`:""}
+  </div>
+  <div class="card"><h3>Open old records from PC</h3>
+    <div class="small muted" style="margin-bottom:8px">Pick one or more <code>SiteNotes_….zip</code> files from <b>D:\\SITE NOTES APP RECORD</b>. You can search, filter, share and print them; they're read-only. Use this on your PC or laptop to look up old records.</div>
+    <input type="file" id="arcIn" accept=".zip,application/zip" multiple>
+    ${archive?`<div style="margin-top:8px"><button class="btn sm" id="arcClose">Back to live records</button></div>`:""}
+  </div>
+  <div class="card"><h3>Reports</h3>
+    <div class="grid2"><div class="fld"><label>Zone</label><select id="rZone">${zOpt}</select></div><div class="fld"><label>Date</label><input type="date" id="rDate" value="${today()}"></div></div>
+    <div class="grid2"><div class="fld"><label>Week from</label><input type="date" id="rFrom" value="${new Date(Date.now()-6*864e5).toISOString().slice(0,10)}"></div><div class="fld"><label>Week to</label><input type="date" id="rTo" value="${today()}"></div></div>
+    <div style="display:flex;gap:8px;flex-wrap:wrap">
+      <button class="btn" id="rDaily">Daily site diary (PDF)</button>
+      <button class="btn" id="rOpen">Open items (PDF)</button>
+      <button class="btn" id="rNcr">NCR / SOR register (PDF)</button>
+      <button class="btn" id="rWeek">Weekly summary (PDF)</button>
+      <button class="btn" id="rXls">Excel register</button>
+    </div>
+    <div class="small muted" style="margin-top:6px">Reports use ${archive?"the opened archive records":"the records on this device"} for the zone chosen.</div>
+  </div>`;
+  const on=(id,f)=>{ const e=$(id); if(e) e.onclick=f; };
+  on("#tNew",()=>transfer("new")); on("#tAll",()=>transfer("all")); on("#tClean",cleanupOnline); on("#arcClose",()=>closeArchive());
+  $("#arcIn").onchange=e=>{ const f=[...e.target.files]; if(f.length) openArchives(f); };
+  const pick=()=>{ const z=$("#rZone").value; return { z, L: notes.filter(n=>(z==="All"||n.zone===z) && n.status!=="Void") }; };
+  const zl=z=>z==="All"?"All zones":"Zone "+z;
+  on("#rDaily",()=>{ const {z,L}=pick(); const d=$("#rDate").value; const day=L.filter(n=>n.date===d).sort((a,b)=>(a.time||"").localeCompare(b.time||"")); if(!day.length){ toast("No records on that date."); return; } pdfRecords(day,`Daily_Diary_${d}_${z}`,`Daily site diary – ${fmtDate(d)} – ${zl(z)}`); });
+  on("#rOpen",()=>{ const {z,L}=pick(); const o=L.filter(n=>!["Closed","Info","Void"].includes(n.status)).sort((a,b)=>(a.dueDate||"9").localeCompare(b.dueDate||"9"));
+    tablePdf(`Open items – ${zl(z)}`,["Record","Date","Zone","Location","Activity","Type","Observation","Action required","Responsible","Due","Status"],
+      o.map(n=>[n.no,fmtDate(n.date),n.zone,[n.plot,n.component==="Pipeline"?`${n.from||""}->${n.to||""}`:n.asset].filter(Boolean).join(" / "),n.activity,(n.obsType||"")+(n.severity?" ("+n.severity+")":""),n.observation,n.actionRequired,n.responsible,(n.dueDate?fmtDate(n.dueDate):"")+(isOverdue(n)?" OVERDUE":""),n.status]),
+      `Open_Items_${z}_${today()}`,[18,15,10,22,22,18,45,40,18,18,18]); });
+  on("#rNcr",()=>{ const {z,L}=pick(); const o=L.filter(n=>n.ncrType&&n.ncrType!=="None").sort((a,b)=>(a.no||"").localeCompare(b.no||""));
+    tablePdf(`NCR / SOR register – ${zl(z)}`,["NCR / SOR","Record","Date","Zone","Location","Activity","Observation","Responsible","Due","Status","Closed"],
+      o.map(n=>[ncrLabel(n),n.no,fmtDate(n.date),n.zone,[n.plot,n.component==="Pipeline"?`${n.from||""}->${n.to||""}`:n.asset].filter(Boolean).join(" / "),n.activity,n.observation,n.responsible,fmtDate(n.dueDate),n.status,fmtDate(n.closedDate)]),
+      `NCR_SOR_Register_${z}_${today()}`,[18,18,15,10,22,22,50,18,15,18,15]); });
+  on("#rWeek",()=>{ const {z,L}=pick(); const f=$("#rFrom").value, t=$("#rTo").value; const W=L.filter(n=>n.date>=f&&n.date<=t);
+    const zs=(z==="All"?settings.zones:[z]).map(zz=>{ const A=W.filter(n=>n.zone===zz); const c=counts(A); const closedIn=L.filter(n=>n.zone===zz&&n.closedDate>=f&&n.closedDate<=t).length; return [zz,A.length,A.filter(n=>DEFECT(n.obsType)).length,c.info,closedIn,counts(L.filter(n=>n.zone===zz)).open,counts(L.filter(n=>n.zone===zz)).overdue,c.ncr]; });
+    const acts={}; W.forEach(n=>{ acts[n.activity]=(acts[n.activity]||0)+1; });
+    const rows=zs.concat([["","","","","","","",""]],Object.entries(acts).sort((a,b)=>b[1]-a[1]).map(([a,c])=>["Activity: "+a,c,"","","","","",""]));
+    tablePdf(`Weekly summary ${fmtDate(f)} – ${fmtDate(t)} – ${zl(z)}`,["Zone","Records","Defects raised","Info","Closed this week","Open now","Overdue now","NCR / SOR"],rows,`Weekly_Summary_${z}_${f}_to_${t}`,[30,18,18,14,18,16,16,16]); });
+  on("#rXls",()=>{ const {z,L}=pick(); excelOnly(notes.filter(n=>z==="All"||n.zone===z),`Site_Notes_Register_${z}_${today()}`); });
+}
+
+/* ---------- PC / settings ---------- */
+function renderPC(){
+  $("#title").textContent="Settings";
+  const list=(key,label,hint)=>`<div class="fld"><label>${label}</label><textarea id="s_${key}" style="min-height:90px">${esc((settings[key]||[]).join("\n"))}</textarea><div class="small muted">${hint}</div></div>`;
+  const assetsTxt = settings.zones.map(z=>`${z}: ${((settings.assets||{})[z]||[]).join(", ")}`).join("\n");
+  $("#view").innerHTML=`
+  <div class="card"><h3>App version</h3><div class="small muted" style="margin-bottom:8px">Site Notes ${APP_VERSION}</div>
+    ${updateReady?`<button class="btn pri" id="updBtn2">Update now</button>`:`<button class="btn" id="chkUpd">Check for updates</button>`}</div>
+  ${isStandalone()?"":`<div class="card"><h3>Install app</h3><div class="small muted" style="margin-bottom:8px">Put Site Notes on your home screen.</div><button class="btn" id="instShow">Show install steps</button></div>`}
+  <div class="card"><h3>Project</h3>
+    <div class="fld"><label>Project name (footer)</label><textarea id="s_project">${esc(settings.project)}</textarea></div>
+    <div class="fld"><label>Company / consultant (optional)</label><input id="s_company" value="${esc(settings.company)}"></div>
+  </div>
+  <div class="card"><h3>Lists</h3>
+    ${list("zones","Zones","One per line.")}
+    ${list("components","Components","One per line. Keep “Pipeline” for From / To and “Other” for free text.")}
+    ${list("activities","Activities / stages","One per line. You can also add new ones from the record form.")}
+    ${list("responsible","Responsible parties","One per line.")}
+    <div class="fld"><label>Asset numbers per zone (MH / BPC / HCC)</label><textarea id="s_assets" style="min-height:140px">${esc(assetsTxt)}</textarea>
+    <div class="small muted">One zone per line: <code>1B-2: MH-12, MH-13, BPC-07, HCC-114</code>. These show as suggestions when you type the asset ref.</div></div>
+    <button class="btn pri" id="sSave">Save settings</button>
+  </div>`;
+  const cu=$("#chkUpd"); if(cu) cu.onclick=checkUpdate; const u2=$("#updBtn2"); if(u2) u2.onclick=applyUpdate;
+  const isw=$("#instShow"); if(isw) isw.onclick=()=>{ lsSet("installHide",false); lsSet("installDone",false); lastTab="home"; go({v:"home"}); };
+  $("#sSave").onclick=async()=>{
+    const lines=id=>$(id).value.split("\n").map(s=>s.trim()).filter(Boolean);
+    const zones=lines("#s_zones"); if(!zones.length){ toast("Keep at least one zone."); return; }
+    const assetsMap={}; $("#s_assets").value.split("\n").forEach(l=>{ const i=l.indexOf(":"); if(i<1) return; const z=l.slice(0,i).trim(); const a=l.slice(i+1).split(/[,;]/).map(s=>s.trim()).filter(Boolean); if(a.length) assetsMap[z]=a; });
+    settings={...settings, project:$("#s_project").value.trim()||PROJECT_DEFAULT, company:$("#s_company").value.trim(), zones, components:lines("#s_components"), activities:lines("#s_activities"), responsible:lines("#s_responsible"), assets:assetsMap};
+    await saveSettings(); toast("Settings saved");
+  };
+}
+async function saveSettings(){ if(!db) return; try{ await db.doc("settings/main").set(settings); }catch(e){ toast("Couldn't save settings."); } }
+
+/* ---------- install card ---------- */
+let installEvt=null; let updateReady=false; const APP_VERSION="1.2 (17 Nov 2026)";
+const isStandalone=()=> (window.matchMedia && matchMedia("(display-mode: standalone)").matches) || navigator.standalone===true;
+const isIOS=()=> /iphone|ipad|ipod/i.test(navigator.userAgent) || (navigator.platform==="MacIntel" && navigator.maxTouchPoints>1);
+window.addEventListener("beforeinstallprompt",e=>{ e.preventDefault(); installEvt=e; if(route.v==="home") render(); });
+window.addEventListener("appinstalled",()=>{ installEvt=null; lsSet("installDone",true); toast("App installed – open it from your home screen"); if(route.v==="home") render(); });
+function installCard(){
+  if(isStandalone() || lsGet("installHide",false) || lsGet("installDone",false)) return "";
+  const ios=isIOS();
+  return `<div class="card" id="instCard" style="display:flex;gap:12px;align-items:flex-start;border-color:#b5d4f4;background:#f3f8fd">
+    <img src="icon-192.png" alt="" style="width:52px;height:52px;border-radius:12px;flex:0 0 52px">
+    <div style="flex:1;min-width:0">
+      <div style="font-weight:700">Install Site Notes</div>
+      <div class="small muted" style="margin:2px 0 8px">Get an app icon on your home screen. Opens full screen and works offline at site.</div>
+      ${ios?`<div class="small" style="line-height:1.6">1. Tap the <b>Share</b> button <span style="font-size:15px">&#x2B06;&#xFE0E;</span> at the bottom of Safari<br>2. Choose <b>Add to Home Screen</b>, then <b>Add</b></div>`
+       : installEvt?`<button class="btn pri" id="instBtn">&#x2B07;&#xFE0E; Install app</button>`
+       : `<div class="small" style="line-height:1.6">In Chrome, tap <b>&#8942;</b> (top right), then <b>Install app</b> or <b>Add to Home screen</b>.</div>`}
+    </div>
+    <button class="btn sm" id="instX" aria-label="Hide" style="padding:4px 9px">&#x2715;</button>
+  </div>`;
+}
+
+/* ---------- on-phone storage (IndexedDB) ---------- */
+const IDB={
+  db:null,
+  open(){ return new Promise((res,rej)=>{ const r=indexedDB.open("sitenotes",1); r.onupgradeneeded=()=>{ const d=r.result; if(!d.objectStoreNames.contains("docs")) d.createObjectStore("docs"); if(!d.objectStoreNames.contains("files")) d.createObjectStore("files"); }; r.onsuccess=()=>{ IDB.db=r.result; res(); }; r.onerror=()=>rej(r.error); }); },
+  run(store,mode,fn){ return new Promise((res,rej)=>{ const t=IDB.db.transaction(store,mode); const st=t.objectStore(store); let out; const q=fn(st); if(q) q.onsuccess=()=>{ out=q.result; }; t.oncomplete=()=>res(out); t.onerror=()=>rej(t.error); t.onabort=()=>rej(t.error||new Error("abort")); }); },
+  get(st,k){ return IDB.run(st,"readonly",s=>s.get(k)); },
+  put(st,k,v){ return IDB.run(st,"readwrite",s=>s.put(v,k)); },
+  del(st,k){ return IDB.run(st,"readwrite",s=>s.delete(k)); },
+  entries(st,prefix){ return new Promise((res,rej)=>{ const out=[]; const t=IDB.db.transaction(st,"readonly"); const q=t.objectStore(st).openCursor(); q.onsuccess=()=>{ const c=q.result; if(c){ if(!prefix||String(c.key).startsWith(prefix)) out.push([c.key,c.value]); c.continue(); } }; t.oncomplete=()=>res(out); t.onerror=()=>rej(t.error); }); }
+};
+const uid=()=>Date.now().toString(36)+Math.random().toString(36).slice(2,8);
+const subs=[];
+function snapOf(path,v){ return {id:path.split("/").pop(), exists:v!==undefined&&v!==null, data:()=>v, metadata:{fromCache:false,hasPendingWrites:false}}; }
+async function fire(l){
+  if(l.type==="doc"){ l.cb(snapOf(l.path, await IDB.get("docs",l.path))); return; }
+  const depth=l.path.split("/").length+1;
+  const rows=(await IDB.entries("docs",l.path+"/")).filter(([k])=>String(k).split("/").length===depth);
+  l.cb({docs:rows.map(([k,v])=>snapOf(k,v)), size:rows.length, empty:!rows.length, metadata:{fromCache:false,hasPendingWrites:false}});
+}
+function notify(path){ subs.forEach(l=>{ if(l.type==="doc"? l.path===path : path.startsWith(l.path+"/")) fire(l); }); }
+const localDb={
+  doc(p){ return { id:p.split("/").pop(), path:p,
+    async get(){ return snapOf(p, await IDB.get("docs",p)); },
+    async set(d){ await IDB.put("docs",p,JSON.parse(JSON.stringify(d))); notify(p); },
+    async delete(){ await IDB.del("docs",p); notify(p); },
+    onSnapshot(cb){ const l={type:"doc",path:p,cb}; subs.push(l); fire(l); return ()=>{ const i=subs.indexOf(l); if(i>=0) subs.splice(i,1); }; } }; },
+  collection(cp){ return { path:cp, doc(id){ return localDb.doc(cp+"/"+(id||uid())); },
+    onSnapshot(cb){ const l={type:"col",path:cp,cb}; subs.push(l); fire(l); return ()=>{ const i=subs.indexOf(l); if(i>=0) subs.splice(i,1); }; } }; }
+};
+const localAssets={
+  async upload(b){ const id=uid(); await IDB.put("files",id,b); urlCache[id]=URL.createObjectURL(b); return {id,url:urlCache[id],sizeBytes:b.size,contentType:b.type}; },
+  async delete(id){ await IDB.del("files",id); if(urlCache[id]){ URL.revokeObjectURL(urlCache[id]); delete urlCache[id]; } return {deleted:true}; }
+};
+async function preloadPreviews(list){
+  for(const n of list) for(const p of n.photos||[]){ const id=p.prev||p.orig; if(id && !urlCache[id] && !String(id).startsWith("zip:")){ try{ const b=await IDB.get("files",id); if(b) urlCache[id]=URL.createObjectURL(b); }catch(e){} } }
+}
+function unsentInfo(){ const L=liveNotes.filter(needsTransfer); const oldest=L.map(n=>n.createdAt||"").sort()[0]; return {count:L.length, oldest}; }
+
+/* ---------- boot ---------- */
+setupShell();
+render();
+(async()=>{
+  try{
+    if(!("indexedDB" in window)){ loaded=true; loadNote="This browser can't store records. Use Chrome (Android) or Safari (iPhone)."; render(); return; }
+    await IDB.open();
+    try{ if(navigator.storage && navigator.storage.persist) await navigator.storage.persist(); }catch(e){}
+    db=localDb; assets=localAssets; canWrite=true;
+    db.doc("settings/main").onSnapshot(s=>{ if(s.exists){ settings={...DEFAULTS, ...s.data()}; if(route.v!=="edit") render(); } });
+    db.collection("notes").onSnapshot(async s=>{
+      liveNotes=s.docs.map(d=>({id:d.id, ...JSON.parse(JSON.stringify(d.data()))}));
+      await preloadPreviews(liveNotes);
+      if(!archive) notes=liveNotes;
+      loaded=true; if(route.v!=="edit") render();
+    });
+  }catch(e){ console.error(e); loaded=true; loadNote="Couldn't open the app's storage. Close and reopen the app."; render(); }
+})();
+/* ---------- app updates ---------- */
+let swReg=null;
+if("serviceWorker" in navigator && location.protocol.startsWith("http")){
+  navigator.serviceWorker.register("sw.js").then(reg=>{
+    swReg=reg;
+    const ready=()=>{ if(navigator.serviceWorker.controller){ updateReady=true; if(["home","list","reports","settings"].includes(route.v)) render(); } };
+    if(reg.waiting) ready();
+    reg.addEventListener("updatefound",()=>{ const w=reg.installing; if(w) w.addEventListener("statechange",()=>{ if(w.state==="installed") ready(); }); });
+    setInterval(()=>reg.update().catch(()=>{}), 60*60*1000);
+    document.addEventListener("visibilitychange",()=>{ if(document.visibilityState==="visible") reg.update().catch(()=>{}); });
+  }).catch(()=>{});
+  let refreshing=false;
+  navigator.serviceWorker.addEventListener("controllerchange",()=>{ if(refreshing) return; refreshing=true; location.reload(); });
+}
+function applyUpdate(){ if(swReg && swReg.waiting) swReg.waiting.postMessage("SKIP_WAITING"); else location.reload(); }
+async function checkUpdate(){
+  if(!swReg){ toast("Updates work once the app is opened from its web link."); return; }
+  toast("Checking for updates…",1500);
+  try{ await swReg.update(); }catch(e){ toast("Can't check now – no internet?"); return; }
+  setTimeout(()=>{ if(updateReady || swReg.waiting || swReg.installing) { updateReady=!!swReg.waiting||updateReady; render(); if(!updateReady) toast("Downloading update…"); } else toast("You have the latest version ("+APP_VERSION+")"); },2500);
+}
+})();
+</script>
+</body>
+</html>
