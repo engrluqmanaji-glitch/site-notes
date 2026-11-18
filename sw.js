@@ -1,5 +1,5 @@
-// Site Notes service worker - v1.4 (17 Nov 2026). Change CACHE on every release so phones show "Update now".
-const CACHE = "sitenotes-v5";
+// Site Notes service worker - v1.5 (18 Nov 2026). Change CACHE on every release so phones show "Update now".
+const CACHE = "sitenotes-v6";
 const SHELL = ["./", "./index.html", "./manifest.json", "./icon-aji-192.png", "./icon-aji-512.png", "./apple-touch-icon-aji.png"];
 const LIBS = [
   "https://cdn.jsdelivr.net/npm/exifr@7.1.3/dist/lite.umd.js",

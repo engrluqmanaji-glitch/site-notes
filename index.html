@@ -231,7 +231,7 @@ const DEFAULTS = {
   components: ["BPC","HCC","Manhole","Pipeline","Other"],
   activities: ["Setting out","Excavation","Rock excavation","Shoring / trench support","Dewatering","Pipe laying","Chamber / MH construction","Encasement","Backfilling & compaction","Testing (air / water / CCTV)","Reinstatement","Utilities damage","Traffic management / HSE","Completion / handover"],
   responsible: ["Contractor","Subcontractor","Utility owner","Client"],
-  project: PROJECT_DEFAULT, company: "", inspector: "Engr Luqman", assets: {}, phrases: {}, cameraFirst: true
+  project: PROJECT_DEFAULT, company: "", inspector: "Engr Luqman", assets: {}, phrases: {}, cameraFirst: true, stampPhotos: true
 };
 const PHRASES = {
   "_": ["Work as per approved drawing","Contractor instructed to rectify","Housekeeping poor – clean the area","Barricades / signage missing","PPE not worn by workers","Rep. not present on site","Inspection rejected – re-offer after correction"],
@@ -732,7 +732,7 @@ function openMarkup(idx){
     $("#mkCancel",m).onclick=()=>m.remove();
     $("#mkDone",m).onclick=()=>{ if(!shapes.length){ m.remove(); return; } draw(); cv.toBlob(b=>{ if(!b){ toast("Couldn't save the marked photo."); return; }
       const f=new File([b],(src.file.name||"photo").replace(/\.[^.]+$/,"")+"_marked.jpg",{type:"image/jpeg"});
-      pending.splice(idx+1,0,{file:f,url:URL.createObjectURL(f),caption:src.caption||"",tag:src.tag,gps:src.gps,marked:true});
+      pending.splice(idx+1,0,{file:f,url:URL.createObjectURL(f),caption:src.caption||"",tag:src.tag,gps:src.gps,marked:true,takenAt:src.takenAt});
       m.remove(); renderPhotos(); toast("Marked copy added"); },"image/jpeg",0.9); };
     draw();
   };
@@ -748,12 +748,45 @@ async function addFiles(files){
     if(!f.type.startsWith("image/")) continue;
     const gps=await readGps(f);
     const defTag = draft.status==="Re-inspected"||draft.status==="Action by contractor" ? "After" : "Before";
-    pending.push({file:f, url:URL.createObjectURL(f), caption:"", tag:defTag, gps});
+    pending.push({file:f, url:URL.createObjectURL(f), caption:"", tag:defTag, gps, takenAt:f.lastModified||Date.now()});
     if(gps && !draft.gps){ draft.gps={...gps, src:"photo"}; }
   }
   $("#phIn").value="";
   renderPhotos();
   if(route.v==="edit"){ const l=$("#locLine"); if(l){ l.innerHTML=locHtml(); bindLoc(); } }
+}
+/* Date & time (plus zone / plot / GPS) printed on the photo itself, like a timestamp camera. Settings can switch it off. */
+function stampLines(when, d, gps){
+  const t=new Date(when||Date.now());
+  const ds=t.toLocaleDateString("en-GB",{day:"2-digit",month:"short",year:"numeric"})+"  "+t.toLocaleTimeString("en-GB",{hour:"2-digit",minute:"2-digit"});
+  const loc=[d&&d.zone?"Zone "+d.zone:"", d&&d.plot?"Plot "+d.plot:""].filter(Boolean).join(" · ");
+  const g=gps||(d&&d.gps); const gs=g&&isFinite(g.lat)&&isFinite(g.lng)?`GPS ${(+g.lat).toFixed(5)}, ${(+g.lng).toFixed(5)}`:"";
+  return [ds+(loc?"   "+loc:""), gs].filter(Boolean);
+}
+function stampPhoto(file, lines, max=2560, q=0.88){
+  return new Promise((res,rej)=>{
+    const img=new Image(); const u=URL.createObjectURL(file);
+    img.onload=()=>{ try{
+      URL.revokeObjectURL(u);
+      const s=Math.min(1,max/Math.max(img.naturalWidth,img.naturalHeight));
+      const W=Math.round(img.naturalWidth*s), H=Math.round(img.naturalHeight*s);
+      const c=document.createElement("canvas"); c.width=W; c.height=H; const x=c.getContext("2d");
+      x.drawImage(img,0,0,W,H);
+      const fs=Math.max(16,Math.round(Math.min(W,H)*0.034)), pad=Math.round(fs*0.6), lh=Math.round(fs*1.3);
+      x.font=`600 ${fs}px system-ui,-apple-system,"Segoe UI",Roboto,sans-serif`;
+      const bw=Math.min(W, Math.max(...lines.map(l=>x.measureText(l).width))+pad*2), bh=lh*lines.length+pad;
+      x.fillStyle="rgba(0,0,0,0.55)"; x.fillRect(W-bw,H-bh,bw,bh);
+      x.fillStyle="#ffd84d"; x.textBaseline="alphabetic";
+      lines.forEach((l,i)=>{ x.fillStyle=i?"#ffffff":"#ffd84d"; x.fillText(l,W-bw+pad,H-bh+pad/2+lh*(i+1)-Math.round(lh*0.25)); });
+      c.toBlob(b=>b?res(b):rej(new Error("stamp")),"image/jpeg",q);
+    }catch(e){ rej(e); } };
+    img.onerror=()=>{ URL.revokeObjectURL(u); rej(new Error("img")); };
+    img.src=u;
+  });
+}
+async function photoForSave(file, when, d, gps){
+  if(settings.stampPhotos===false) return null;
+  try{ return await stampPhoto(file, stampLines(when,d,gps)); }catch(e){ return null; }
 }
 function shrink(file,max=1600,q=0.82){
   return new Promise((res,rej)=>{
@@ -815,8 +848,9 @@ async function saveDraft(quick){
       btn.innerHTML=`<span class="spin"></span> Uploading photo ${i+1}/${pending.length}…`;
       const p=pending[i];
       let orig=null, prev=null;
-      const o=await origFor(p.file); if(o) orig=(await uploadOnce(o)).id;
-      const small=await shrink(p.file); prev=(await uploadOnce(small,"image/jpeg")).id; await keepThumb(small,prev);
+      const st=await photoForSave(p.file, p.takenAt, d, p.gps);
+      const o=st||await origFor(p.file); if(o) orig=(await uploadOnce(o)).id;
+      const small=await shrink(st||p.file); prev=(await uploadOnce(small,"image/jpeg")).id; await keepThumb(small,prev);
       if(!orig) orig=prev;
       d.photos.push({orig, prev, caption:p.caption||"", tag:p.tag||"Before", gps:p.gps||null, name:p.file.name||"", addedAt:new Date().toISOString()});
     }
@@ -875,6 +909,7 @@ function renderDetail(){
     ${isOverdue(n)?`<div class="overdue small">Overdue – target date was ${esc(fmtDate(n.dueDate))}</div>`:""}
   </div>`;
   if((n.photos||[]).length) html+=`<div class="card"><h3>Photos (${n.photos.length})</h3><div class="gal">${n.photos.map((p,i)=>`<figure><img data-pid="${esc(p.prev||p.orig)}" src="${blob(p.prev||p.orig)}" data-full="${esc(p.prev||p.orig)}" alt="${esc(p.caption||"")}"><figcaption><b>${esc(p.tag||"")}</b>${p.caption?" · "+esc(p.caption):""}</figcaption></figure>`).join("")}</div></div>`;
+  html+="<!--SHARE-->";
   html+=`<div class="card"><h3>Details</h3><dl class="dl">
     ${row("Date / time", esc(fmtDate(n.date)+" "+(n.time||"")))}${row("Recorded by", esc(n.recordedBy))}
     ${row("Zone", esc(n.zone))}${row("Plot / line", esc(n.plot))}
@@ -896,12 +931,12 @@ function renderDetail(){
   if(n.status==="Void") html+=`<div class="banner">Void: ${esc(n.voidReason||"")}</div>`;
   if(n.incomplete && n.status!=="Void" && canWrite && !archive) html=`<div class="banner" style="display:flex;align-items:center;gap:8px;flex-wrap:wrap"><b>Quick record – details to complete.</b><span style="flex:1"></span><button class="btn sm pri" id="dFinish">Finish details</button></div>`+html;
   const hasB=(n.photos||[]).some(p=>p.tag!=="After"), hasA=(n.photos||[]).some(p=>p.tag==="After");
-  html+=`<div class="card"><h3>Share &amp; report</h3><div style="display:flex;gap:8px;flex-wrap:wrap">
-    ${(n.photos||[]).length?`<button class="btn pri" id="dShare">📤 Share photo${n.photos.length>1?"s":""}</button>`:`<button class="btn pri" id="dShare">📤 Share details image</button>`}
-    ${hasB&&hasA?`<button class="btn" id="dCollage">Before / After collage</button>`:""}
+  const shareCard=`<div class="card"><div style="display:flex;gap:8px;flex-wrap:wrap">
+    <button class="btn pri" id="dShare">📤 Share on WhatsApp</button>
+    ${hasB&&hasA?`<button class="btn" id="dCollage">Before / After</button>`:""}
     <button class="btn" id="dCopy">Copy text</button>
-    <button class="btn" id="dPdf">PDF report</button>
-  </div><div class="small muted" style="margin-top:6px">Opens your phone's share menu – choose WhatsApp and your group. The details text is copied too, in case WhatsApp drops it.</div></div>`;
+    <button class="btn" id="dPdf">PDF</button>
+  </div><div class="small muted" style="margin-top:6px">Sends ${(n.photos||[]).length?"the photo"+((n.photos||[]).length>1?"s":"")+" with the record details printed under "+((n.photos||[]).length>1?"each":"it"):"an image with the record details"} – pick WhatsApp, then your group. The details text is copied too.</div></div>`;
   if(canWrite && !archive){
     html+=`<div class="card"><div style="display:flex;gap:8px;flex-wrap:wrap">`;
     if(!locked) html+=`<button class="btn" id="dEdit">Edit</button>`;
@@ -910,8 +945,10 @@ function renderDetail(){
     if(n.status==="Closed" && defect) html+=`<button class="btn" id="dReopen">Re-open…</button>`;
     if(n.status==="Info") html+=`<button class="btn" id="dEdit">Edit</button>`;
     if(n.status!=="Void") html+=`<button class="btn danger" id="dVoid">Void…</button>`;
+    html+=`<button class="btn danger" id="dDelete">Delete…</button>`;
     html+=`</div></div>`;
   }
+  html=html.replace("<!--SHARE-->",shareCard);
   html+=`<div class="card"><h3>History</h3><div class="hist">${(n.history||[]).slice().reverse().map(h=>`<div><b>${esc(new Date(h.at).toLocaleString())}</b> – ${esc(h.what)}</div>`).join("")}</div></div>`;
   $("#view").innerHTML=html;
   document.querySelectorAll(".gal img").forEach(i=>i.onclick=async()=>{ const lb=document.createElement("div"); lb.className="lightbox"; lb.innerHTML=`<img src="${i.src}" alt=""><button class="btn">Close</button>`; let u=null; lb.onclick=()=>{ lb.remove(); if(u) URL.revokeObjectURL(u); }; document.body.appendChild(lb);
@@ -925,6 +962,14 @@ function renderDetail(){
   on("#dNext",()=>setStatus(n, FLOW[idx+1]));
   on("#dClose",()=>closeRecord(n));
   on("#dReopen",async()=>{ const r=await dialog({title:"Re-open "+n.no+"?",body:"Give a reason. It's kept in the history.",input:"Defect reappeared",ok:"Re-open"}); if(r) await writeStatus(n,{status:"Re-inspected",closedDate:""},"Re-opened: "+r); });
+  on("#dDelete",async()=>{
+    const ok=await dialog({title:"Delete "+n.no+"?",body:"The record disappears from this phone"+(PC?" and from the register on your PC (its folder is moved to <b>Records\\_Deleted</b> there)":"")+".<br><br>To keep it in the register but mark it as a mistake, use <b>Void</b> instead.",ok:"Delete record",danger:true});
+    if(!ok) return;
+    const ids=new Set(); (n.photos||[]).forEach(p=>{ if(p.orig) ids.add(p.orig); if(p.prev) ids.add(p.prev); });
+    await writeStatus(n,{deleted:true,deletedAt:new Date().toISOString()},"Deleted");
+    if(!PC && assets) for(const id of ids){ try{ await assets.delete(id); }catch(e){} }
+    go({v:"list"});
+  });
   on("#dVoid",async()=>{ const r=await dialog({title:"Void "+n.no+"?",body:"The record stays in the register, marked void. Give a reason.",input:"Duplicate of SN-…",ok:"Void record",danger:true}); if(r) await writeStatus(n,{status:"Void",voidReason:r},"Voided: "+r); });
 }
 async function writeStatus(n, patch, what){
@@ -956,7 +1001,7 @@ function closeRecord(n){
     const ok=$("#cOk",m); ok.disabled=true; ok.innerHTML='<span class="spin"></span> Saving…';
     try{
       const photos=(n.photos||[]).slice();
-      for(const f of files){ const gps=await readGps(f); let orig=null; const o=await origFor(f); if(o) orig=(await uploadOnce(o)).id; const sm=await shrink(f); const prev=(await uploadOnce(sm,"image/jpeg")).id; await keepThumb(sm,prev); photos.push({orig:orig||prev,prev,caption:"After",tag:"After",gps,name:f.name||"",addedAt:new Date().toISOString()}); }
+      for(const f of files){ const gps=await readGps(f); let orig=null; const st=await photoForSave(f, f.lastModified||Date.now(), n, gps); const o=st||await origFor(f); if(o) orig=(await uploadOnce(o)).id; const sm=await shrink(st||f); const prev=(await uploadOnce(sm,"image/jpeg")).id; await keepThumb(sm,prev); photos.push({orig:orig||prev,prev,caption:"After",tag:"After",gps,name:f.name||"",addedAt:new Date().toISOString()}); }
       lsSet("verifier",v);
       await writeStatus(n,{status:"Closed",actionTaken:a,verifiedBy:v,closedDate:dt,photos},"Closed by "+v);
       m.remove();
@@ -1349,6 +1394,7 @@ function renderPC(){
     <div class="fld"><label>Your name (shown on records, photos and reports)</label><input id="s_inspector" value="${esc(settings.inspector||"")}" placeholder="Engr Luqman"></div>
     <div class="fld"><label>Company / consultant (optional)</label><input id="s_company" value="${esc(settings.company)}"></div>
     <div class="fld"><label>Voice typing language (🎤 Speak button)</label><select id="s_voice">${VOICE_LANGS.map(([k,l])=>`<option value="${k}" ${k===(settings.voiceLang||VOICE_LANGS[0][0])?"selected":""}>${l}</option>`).join("")}</select></div>
+    <label class="small" style="display:flex;gap:8px;align-items:center;margin-bottom:8px"><input type="checkbox" id="s_stamp" style="width:auto" ${settings.stampPhotos!==false?"checked":""}> Print date &amp; time (and zone, plot, GPS) on photos</label>
     <label class="small" style="display:flex;gap:8px;align-items:center"><input type="checkbox" id="s_cam" style="width:auto" ${settings.cameraFirst!==false?"checked":""}> Open the camera straight away when I tap ＋ New record</label>
   </div>
   <div class="card"><h3>Lists</h3>
@@ -1367,14 +1413,14 @@ function renderPC(){
     const lines=id=>$(id).value.split("\n").map(s=>s.trim()).filter(Boolean);
     const zones=lines("#s_zones"); if(!zones.length){ toast("Keep at least one zone."); return; }
     const assetsMap={}; $("#s_assets").value.split("\n").forEach(l=>{ const i=l.indexOf(":"); if(i<1) return; const z=l.slice(0,i).trim(); const a=l.slice(i+1).split(/[,;]/).map(s=>s.trim()).filter(Boolean); if(a.length) assetsMap[z]=a; });
-    settings={...settings, project:$("#s_project").value.trim()||PROJECT_DEFAULT, company:$("#s_company").value.trim(), inspector:$("#s_inspector").value.trim(), cameraFirst:$("#s_cam").checked, voiceLang:$("#s_voice").value, zones, components:lines("#s_components"), activities:lines("#s_activities"), responsible:lines("#s_responsible"), assets:assetsMap};
+    settings={...settings, project:$("#s_project").value.trim()||PROJECT_DEFAULT, company:$("#s_company").value.trim(), inspector:$("#s_inspector").value.trim(), cameraFirst:$("#s_cam").checked, stampPhotos:$("#s_stamp").checked, voiceLang:$("#s_voice").value, zones, components:lines("#s_components"), activities:lines("#s_activities"), responsible:lines("#s_responsible"), assets:assetsMap};
     await saveSettings(); toast("Settings saved");
   };
 }
 async function saveSettings(){ if(!db) return; try{ await db.doc("settings/main").set(settings); }catch(e){ toast("Couldn't save settings."); } }
 
 /* ---------- install card ---------- */
-let installEvt=null; let updateReady=false; const APP_VERSION="1.4 (17 Nov 2026)";
+let installEvt=null; let updateReady=false; const APP_VERSION="1.5 (18 Nov 2026)";
 const isStandalone=()=> (window.matchMedia && matchMedia("(display-mode: standalone)").matches) || navigator.standalone===true;
 const isIOS=()=> /iphone|ipad|ipod/i.test(navigator.userAgent) || (navigator.platform==="MacIntel" && navigator.maxTouchPoints>1);
 window.addEventListener("beforeinstallprompt",e=>{ e.preventDefault(); installEvt=e; if(route.v==="home") render(); });
@@ -1534,9 +1580,41 @@ const pcState={st:PC?"wait":"off", at:"", pending:0, info:null};
 (function leaveInAppBrowser(){
   try{ if(isAndroid() && inAppBrowser() && !isStandalone() && !sessionStorage.getItem("sn_jumped")){ sessionStorage.setItem("sn_jumped","1"); setTimeout(()=>{ location.href=chromeUrl(); },400); } }catch(e){}
 })();
+/* Phone <-> PC through Google Drive: the PC link can be the user's own Google Apps Script ("Site Notes Cloud").
+   It answers the same requests as Site Notes PC, so the rest of the app works the same way. */
+const CLOUD_SCRIPT = "// Site Notes Cloud - Google Drive mailbox between the Site Notes phone app and Site Notes PC.\n// Engr Luqman - version 1.5 (18 Nov 2026)\n// Deploy: Deploy > New deployment > type \"Web app\" > Execute as: Me > Who has access: Anyone > Deploy.\n// Records and photos are kept in your Google Drive, folder \"Site Notes Cloud\". Only callers with the key get in.\nvar SECRET = '__KEY__';\nvar ROOT_NAME = 'Site Notes Cloud';\n\nfunction doGet() {\n  return out_({ status: 200, body: { ok: true, name: 'Site Notes Cloud' } });\n}\n\nfunction doPost(e) {\n  var r;\n  try { r = JSON.parse(e.postData.contents); } catch (err) { return out_({ status: 400, error: 'bad request' }); }\n  if (!r || r.key !== SECRET) return out_({ status: 401, error: 'bad key' });\n  try {\n    switch (r.op) {\n      case 'ping': return out_({ status: 200, body: { ok: true, name: 'Site Notes Cloud', relay: true, version: '1.5' } });\n      case 'putNote': return out_(putText_(sub_('notes'), safe_(r.id) + '.json', String(r.json)));\n      case 'list': return out_(list_(r.since, r.limit));\n      case 'putFile': return out_(putFile_(r));\n      case 'getFile': return getFile_(r);\n      case 'putSettings': return out_(putText_(root_(), 'settings.json', String(r.json)));\n      case 'getSettings': return out_(getSettings_());\n    }\n    return out_({ status: 404, error: 'unknown op' });\n  } catch (err) {\n    return out_({ status: 500, error: String((err && err.message) || err) });\n  }\n}\n\nfunction out_(o) {\n  return ContentService.createTextOutput(JSON.stringify(o)).setMimeType(ContentService.MimeType.JSON);\n}\nfunction safe_(s) { return String(s || '').replace(/[^A-Za-z0-9_.-]/g, '_'); }\n\nfunction root_() {\n  var p = PropertiesService.getScriptProperties();\n  var id = p.getProperty('ROOT');\n  if (id) { try { var f = DriveApp.getFolderById(id); if (!f.isTrashed()) return f; } catch (e) {} }\n  var it = DriveApp.getFoldersByName(ROOT_NAME);\n  var g = it.hasNext() ? it.next() : DriveApp.createFolder(ROOT_NAME);\n  p.setProperty('ROOT', g.getId());\n  return g;\n}\nfunction sub_(name) {\n  var p = PropertiesService.getScriptProperties();\n  var key = 'SUB_' + name;\n  var id = p.getProperty(key);\n  if (id) { try { var f = DriveApp.getFolderById(id); if (!f.isTrashed()) return f; } catch (e) {} }\n  var r = root_();\n  var it = r.getFoldersByName(name);\n  var g = it.hasNext() ? it.next() : r.createFolder(name);\n  p.setProperty(key, g.getId());\n  return g;\n}\nfunction find_(folder, name) {\n  var it = folder.getFilesByName(name);\n  while (it.hasNext()) { var f = it.next(); if (!f.isTrashed()) return f; }\n  return null;\n}\n\nfunction putText_(folder, name, text) {\n  var lock = LockService.getScriptLock();\n  lock.waitLock(20000);\n  try {\n    var f = find_(folder, name);\n    if (f) { if (f.getBlob().getDataAsString('UTF-8') !== text) f.setContent(text); }\n    else folder.createFile(name, text, 'application/json');\n  } finally { lock.releaseLock(); }\n  return { status: 200, body: { ok: true } };\n}\n\n// Records changed after \"since\" (oldest first), at most \"limit\" per call. \"next\" continues a long list.\nfunction list_(since, limit) {\n  var now = new Date(Date.now() - 5000).toISOString();\n  limit = Math.min(Math.max(Number(limit) || 100, 1), 200);\n  var folder = sub_('notes');\n  var q = \"'\" + folder.getId() + \"' in parents and trashed = false\";\n  if (since) q += \" and modifiedDate > '\" + String(since).replace(/'/g, '') + \"'\";\n  var all = [];\n  var it = DriveApp.searchFiles(q);\n  while (it.hasNext()) { var f = it.next(); all.push({ f: f, t: f.getLastUpdated().getTime() }); }\n  all.sort(function (a, b) { return a.t - b.t; });\n  var page = all.slice(0, limit);\n  var notes = page.map(function (x) { return x.f.getBlob().getDataAsString('UTF-8'); });\n  var more = all.length > limit;\n  var next = more ? new Date(page[page.length - 1].t - 1).toISOString() : '';\n  return { status: 200, body: { notes: notes, now: now, next: next, more: more, full: !since } };\n}\n\nfunction putFile_(r) {\n  var folder = sub_('files');\n  var name = safe_(r.id);\n  var lock = LockService.getScriptLock();\n  lock.waitLock(20000);\n  try {\n    if (find_(folder, name)) return { status: 200, body: { ok: true, existed: true } };\n    var bytes = Utilities.base64Decode(String(r.b64 || ''));\n    if (!bytes.length) return { status: 400, error: 'empty file' };\n    folder.createFile(Utilities.newBlob(bytes, r.type || 'image/jpeg', name));\n  } finally { lock.releaseLock(); }\n  return { status: 200, body: { ok: true } };\n}\n\n// A photo as base64. w = small preview wanted (Drive's own thumbnail). fmt \"raw\" = \"type\\nbase64\" text (for the PC).\nfunction getFile_(r) {\n  var f = find_(sub_('files'), safe_(r.id));\n  if (!f) return r.fmt === 'raw' ? ContentService.createTextOutput('ERR 404') : out_({ status: 404, error: 'missing' });\n  var blob = null;\n  if (Number(r.w) > 0 && Number(r.w) <= 400) { try { blob = f.getThumbnail(); } catch (e) { blob = null; } }\n  if (!blob) blob = f.getBlob();\n  var type = blob.getContentType() || 'image/jpeg';\n  var b64 = Utilities.base64Encode(blob.getBytes());\n  if (r.fmt === 'raw') return ContentService.createTextOutput(type + '\\n' + b64);\n  return out_({ status: 200, type: type, b64: b64 });\n}\n\nfunction getSettings_() {\n  var f = find_(root_(), 'settings.json');\n  if (!f) return { status: 200, body: { json: null, updated: 0 } };\n  return { status: 200, body: { json: f.getBlob().getDataAsString('UTF-8'), updated: f.getLastUpdated().getTime() } };\n}\n";
+const isCloud=u=>/^https:\/\/script\.google(usercontent)?\.com\//.test(u||"");
+async function blobToB64(b){ const a=new Uint8Array(await b.arrayBuffer()); let s=""; for(let i=0;i<a.length;i+=0x8000) s+=String.fromCharCode.apply(null,a.subarray(i,i+0x8000)); return btoa(s); }
+function b64ToBlob(b64,type){ const s=atob(b64); const a=new Uint8Array(s.length); for(let i=0;i<s.length;i++) a[i]=s.charCodeAt(i); return new Blob([a],{type:type||"image/jpeg"}); }
+async function cloudPost(req,timeout,signal){
+  const r=await fetch(PC.url,{method:"POST",headers:{"Content-Type":"text/plain;charset=utf-8"},body:JSON.stringify({...req,key:PC.key}),signal,cache:"no-store",redirect:"follow"});
+  if(!r.ok) throw new Error("Google answered "+r.status);
+  let j; try{ j=await r.json(); }catch(e){ throw new Error("Google sent an unexpected answer"); }
+  if(j.status===401){ const e=new Error("Wrong PC key"); e.code="key"; throw e; }
+  if(j.status!==200) throw new Error(j.error||("Cloud error "+j.status));
+  return j;
+}
+async function cloudApi(path,opt,signal){
+  const [p,q]=path.split("?"); const parts=p.split("/"); const qs=new URLSearchParams(q||""); const m=(opt.method||"GET").toUpperCase();
+  const json=o=>new Response(JSON.stringify(o),{headers:{"Content-Type":"application/json"}});
+  if(parts[0]==="ping") return json((await cloudPost({op:"ping"},0,signal)).body);
+  if(parts[0]==="notes" && parts.length===1){
+    let since=qs.get("since")||"", notes=[], now="", full=!since;
+    for(let i=0;i<50;i++){ const b=(await cloudPost({op:"list",since,limit:100},0,signal)).body; if(!now) now=b.now;
+      for(const t of b.notes||[]){ try{ notes.push(JSON.parse(t)); }catch(e){} } if(!b.more) break; since=b.next; }
+    return json({notes,now,full});
+  }
+  if(parts[0]==="notes" && m==="PUT"){ await cloudPost({op:"putNote",id:decodeURIComponent(parts[1]),json:opt.body},0,signal); return json({ok:true}); }
+  if(parts[0]==="files" && m==="PUT"){ await cloudPost({op:"putFile",id:decodeURIComponent(parts[1]),type:opt.type||"image/jpeg",b64:await blobToB64(opt.body)},0,signal); return json({ok:true}); }
+  if(parts[0]==="files"){ const j=await cloudPost({op:"getFile",id:decodeURIComponent(parts[1]),w:+(qs.get("w")||0)},0,signal); return new Response(b64ToBlob(j.b64,j.type)); }
+  if(parts[0]==="settings" && m==="PUT"){ await cloudPost({op:"putSettings",json:opt.body},0,signal); return json({ok:true}); }
+  if(parts[0]==="settings"){ const b=(await cloudPost({op:"getSettings"},0,signal)).body; let v=null; try{ v=b.json?JSON.parse(b.json):null; }catch(e){} return json(v); }
+  throw new Error("Not available through Google Drive");
+}
 async function pcApi(path,opt={}){
-  const ctl=new AbortController(); const t=setTimeout(()=>ctl.abort(), opt.timeout||20000);
+  const ctl=new AbortController(); const t=setTimeout(()=>ctl.abort(), (!isPcHost&&isCloud(PC&&PC.url))?Math.max(opt.timeout||0,45000):(opt.timeout||20000));
   try{
+    if(!isPcHost && isCloud(PC&&PC.url)) return await cloudApi(path,opt,ctl.signal);
     const h={"X-Key":PC.key}; if(opt.type) h["Content-Type"]=opt.type;
     const r=await fetch(PC.url+"/api/"+path,{method:opt.method||"GET",headers:h,body:opt.body,signal:ctl.signal,cache:"no-store"});
     if(r.status===401){ const e=new Error("Wrong PC key"); e.code="key"; throw e; }
@@ -1559,7 +1637,7 @@ async function syncNow(manual){
     for(const [k,v] of rows){
       const id=k.split("/").pop(); const ids=new Set();
       (v.photos||[]).forEach(p=>{ if(p.orig) ids.add(p.orig); if(p.prev) ids.add(p.prev); });
-      for(const fid of ids){ const b=await IDB.get("files",fid); if(b) await pcApi("files/"+encodeURIComponent(fid),{method:"PUT",type:b.type||"image/jpeg",body:b,timeout:180000}); }
+      if(!v.deleted) for(const fid of ids){ const b=await IDB.get("files",fid); if(b) await pcApi("files/"+encodeURIComponent(fid),{method:"PUT",type:b.type||"image/jpeg",body:b,timeout:180000}); }
       const body={...v,id}; delete body._dirty;
       const res=await (await pcApi("notes/"+encodeURIComponent(id),{method:"PUT",type:"application/json",body:JSON.stringify(body),timeout:60000})).json();
       if(res.renumberedFrom) toast(`${res.renumberedFrom} is now ${res.no} (that number was already used on the PC)`,6000);
@@ -1583,11 +1661,11 @@ async function syncNow(manual){
     if(rs && !(ls && isDirty(ls))){ const v={...rs,_dirty:false}; if(!ls || JSON.stringify(ls)!==JSON.stringify(v)){ await IDB.put("docs","settings/main",v); changedSettings=true; } }
     if(resp && !Array.isArray(resp) && resp.now) lsSet("pcSince",{k:PC.key, t:resp.now, full:(useSince?sinceRec.full:Date.now())});
     pcState.st="ok"; pcState.at=new Date().toISOString(); lastPull=Date.now();
-    if(manual) toast(sent?`Sent ${sent} record${sent>1?"s":""} to PC`:"All saved on PC");
+    if(manual) toast(sent?`Sent ${sent} record${sent>1?"s":""} to ${cloudLink()?"Google Drive":"PC"}`:(cloudLink()?"All sent":"All saved on PC"));
     if(pcState.justLinked){ pcState.justLinked=false; toast("Linked with your PC ✓"); }
   }catch(e){
     pcState.st = e.code==="key" ? "key" : (navigator.onLine===false ? "offline" : "down");
-    if(manual) toast(pcState.st==="key"?"PC link key is wrong – link again from the PC.":navigator.onLine===false?"No internet – records will be sent automatically.":"Can't reach the PC – is it switched on?");
+    if(manual) toast(pcState.st==="key"?"PC link key is wrong – link again from the PC.":navigator.onLine===false?"No internet – records will be sent automatically.":cloudLink()?"Can't reach Google Drive – records will be sent automatically.":"Can't reach the PC – is it switched on?");
   }finally{
     syncing=false;
     try{ pcState.pending=(await IDB.entries("docs","notes/")).filter(([k,v])=>isDirty(v)).length; }catch(e){}
@@ -1596,15 +1674,17 @@ async function syncNow(manual){
     if(syncAgain){ syncAgain=false; setTimeout(()=>syncNow(),400); }
   }
 }
+const cloudLink=()=>!isPcHost && PC && isCloud(PC.url);
 function syncText(){
   const n=pcState.pending, w=n?` · ${n} waiting`:"";
   switch(pcState.st){
     case "off": return {c:"#8a5300", t:"Not linked with your PC yet – Settings › Link with PC"};
     case "wait": case "sync": return {c:"#14324d", t:"Sending to PC…"+w};
     case "ok": if(isPcHost && pcState.info && pcState.info.registerError) return {c:"#b42e2e", t:"⚠ "+pcState.info.registerError};
-      return n?{c:"#8a5300",t:`${n} waiting to send`}:{c:"#2f7a3b", t:"✓ All saved on your PC"+(pcState.at?" · "+new Date(pcState.at).toLocaleTimeString("en-GB",{hour:"2-digit",minute:"2-digit"}):"")};
+      if(isPcHost && pcState.info && pcState.info.cloudError) return {c:"#b42e2e", t:"⚠ "+pcState.info.cloudError};
+      return n?{c:"#8a5300",t:`${n} waiting to send`}:{c:"#2f7a3b", t:(cloudLink()?"✓ All sent – your PC collects them from Google Drive":"✓ All saved on your PC")+(pcState.at?" · "+new Date(pcState.at).toLocaleTimeString("en-GB",{hour:"2-digit",minute:"2-digit"}):"")};
     case "offline": return {c:"#8a5300", t:"No signal"+w+" – will send automatically"};
-    case "down": return {c:"#b42e2e", t:"PC not reachable"+w+" – is the PC on?"};
+    case "down": return cloudLink()?{c:"#8a5300", t:"Can't reach Google Drive"+w+" – will send automatically"}:{c:"#b42e2e", t:"PC not reachable"+w+" – is the PC on?"};
     case "key": return {c:"#b42e2e", t:"PC link key is wrong – link again"};
   }
   return {c:"#555",t:""};
@@ -1624,7 +1704,19 @@ function pcCardHtml(){
         <div class="fld"><input id="phLink" readonly value="${esc(link)}"></div>
         <div style="display:flex;gap:8px;flex-wrap:wrap"><button class="btn pri" id="phCopy">Copy phone link</button><a class="btn" target="_blank" rel="noopener" href="https://wa.me/?text=${encodeURIComponent("Site Notes – link my phone to my PC: "+link)}">Send on WhatsApp</a></div>
         <div class="small muted" style="margin-top:8px">Keep this link private – it is the key to your records.</div>`
-      :`<div class="banner">The phone link isn't ready yet. Install <b>Tailscale</b> on this PC, sign in, then double-click <b>Start Site Notes PC</b> again.</div>`}
+      :`<div class="small" style="margin-bottom:6px"><b>Set up the phone link through your Google Drive</b> – once, about 5 minutes:</div>
+        <ol class="small" style="line-height:1.65;padding-left:18px;margin:0 0 10px">
+          <li>Click <b>Copy setup code</b> below.</li>
+          <li>Open <a href="https://script.new" target="_blank" rel="noopener"><b>script.new</b></a> and sign in to Google. Select everything in the editor (Ctrl+A) and paste (Ctrl+V). Click 💾 Save.</li>
+          <li>Click <b>Deploy → New deployment</b> → ⚙ <b>Web app</b>. Execute as: <b>Me</b>. Who has access: <b>Anyone</b>. Click <b>Deploy</b>.</li>
+          <li><b>Authorize access</b> → your Google account → <b>Advanced</b> → <b>Go to … (unsafe)</b> → <b>Allow</b>. (It is your own script – only you and your phone can use it.)</li>
+          <li>Copy the <b>Web app URL</b>, paste it here and click <b>Connect</b>.</li>
+        </ol>
+        <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:10px"><button class="btn" id="cloudCopy">Copy setup code</button></div>
+        <textarea id="cloudCode" readonly style="display:none;width:100%;height:120px;font-size:11px"></textarea>
+        <div class="fld"><input id="cloudUrl" placeholder="https://script.google.com/macros/s/…/exec"></div>
+        <button class="btn pri" id="cloudConnect">Connect</button>
+        <div class="small muted" style="margin-top:8px">Records and photos then travel phone → your Google Drive (folder “Site Notes Cloud”) → this PC. No VPN needed.</div>`}
     </div>`;
   }
   return `<div class="card"><h3>Link with PC</h3>
@@ -1638,6 +1730,16 @@ function bindPcCard(){
   const on=(id,f)=>{ const e=$(id); if(e) e.onclick=f; };
   on("#phCopy",()=>{ const i=$("#phLink"); i.select(); try{ navigator.clipboard.writeText(i.value).then(()=>toast("Phone link copied")); }catch(e){ document.execCommand("copy"); toast("Phone link copied"); } });
   on("#pcSync",()=>syncNow(true));
+  on("#cloudCopy",async()=>{ const code=CLOUD_SCRIPT.replace("__KEY__",PC?PC.key:""); try{ await navigator.clipboard.writeText(code); toast("Setup code copied – paste it at script.new"); }catch(e){ const t=$("#cloudCode"); t.style.display="block"; t.value=code; t.select(); toast("Select all of this code and copy it (Ctrl+C)"); } });
+  on("#cloudConnect",async()=>{
+    const url=($("#cloudUrl").value||"").trim();
+    if(!/^https:\/\/script\.google\.com\/macros\/s\/[\w-]+\/exec$/.test(url)){ toast("Paste the Web app URL – it starts with https://script.google.com/macros/s/ and ends with /exec",5000); return; }
+    const b=$("#cloudConnect"); b.disabled=true; b.textContent="Checking…";
+    try{ const r=await (await pcApi("relay",{method:"PUT",type:"application/json",body:JSON.stringify({url}),timeout:90000})).json();
+      if(r.ok){ toast("Connected to Google Drive ✓"); await syncNow(); render(); } else toast(r.error||"Couldn't connect",6000);
+    }catch(e){ toast("Couldn't connect: "+e.message,6000); }
+    finally{ b.disabled=false; b.textContent="Connect"; }
+  });
   on("#pcUnlink",async()=>{ const ok=await dialog({title:"Unlink this phone?",body:"Records already on the PC stay there. New records will stay on this phone until you link again.",ok:"Unlink"}); if(!ok) return; PC=null; lsSet("pc",null); pcState.st="off"; render(); });
   on("#pcLinkBtn",()=>{ const v=$("#pcPaste").value.trim(); const i=v.indexOf("#pc="); if(i<0){ toast("That doesn't look like the phone link."); return; }
     const q=new URLSearchParams(v.slice(i+1)); const url=(q.get("pc")||"").replace(/\/+$/,""), key=q.get("k")||""; if(!url||!key){ toast("That doesn't look like the phone link."); return; }
@@ -1657,7 +1759,7 @@ render();
     db=localDb; assets=localAssets; canWrite=true;
     db.doc("settings/main").onSnapshot(s=>{ if(s.exists){ settings={...DEFAULTS, ...s.data()}; if(route.v!=="edit") render(); } });
     db.collection("notes").onSnapshot(async s=>{
-      liveNotes=s.docs.map(d=>({id:d.id, ...JSON.parse(JSON.stringify(d.data()))}));
+      liveNotes=s.docs.map(d=>({id:d.id, ...JSON.parse(JSON.stringify(d.data()))})).filter(n=>!n.deleted);
       await preloadPreviews(liveNotes);
       if(!archive) notes=liveNotes;
       loaded=true; if(route.v!=="edit") render();
