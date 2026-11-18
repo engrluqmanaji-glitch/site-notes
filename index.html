@@ -1420,7 +1420,7 @@ function renderPC(){
 async function saveSettings(){ if(!db) return; try{ await db.doc("settings/main").set(settings); }catch(e){ toast("Couldn't save settings."); } }
 
 /* ---------- install card ---------- */
-let installEvt=null; let updateReady=false; const APP_VERSION="1.5 (18 Nov 2026)";
+let installEvt=null; let updateReady=false; const APP_VERSION="1.6 (18 Nov 2026)";
 const isStandalone=()=> (window.matchMedia && matchMedia("(display-mode: standalone)").matches) || navigator.standalone===true;
 const isIOS=()=> /iphone|ipad|ipod/i.test(navigator.userAgent) || (navigator.platform==="MacIntel" && navigator.maxTouchPoints>1);
 window.addEventListener("beforeinstallprompt",e=>{ e.preventDefault(); installEvt=e; if(route.v==="home") render(); });
@@ -1766,9 +1766,12 @@ render();
     });
     if(PC){ setTimeout(()=>syncNow(),800); }
     window.addEventListener("online",()=>syncNow());
-    document.addEventListener("visibilitychange",()=>{ if(document.visibilityState==="visible" && (pcState.pending || Date.now()-lastPull>60*1000)) syncNow(); });
-    // records waiting: try every 90 s. Nothing waiting: just check the PC for changes every 10 min.
-    setInterval(()=>{ if(!PC || document.visibilityState==="hidden") return; if(pcState.pending || Date.now()-lastPull>10*60*1000) syncNow(); }, 90*1000);
+    // Keep phone and PC in step while the app is open: the PC app checks its own program every 8 s,
+    // a phone linked through Google Drive every 20 s (a "nothing new" answer is tiny), the old direct link every 10 min.
+    const syncGap=()=> isPcHost ? 8000 : (isCloud(PC&&PC.url) ? 20000 : (pcState.pending ? 90000 : 10*60*1000));
+    let lastTry=0;
+    document.addEventListener("visibilitychange",()=>{ if(document.visibilityState==="visible" && PC && (pcState.pending || Date.now()-lastPull>Math.min(syncGap(),60000))) { lastTry=Date.now(); syncNow(); } });
+    setInterval(()=>{ if(!PC || document.visibilityState==="hidden" || syncing) return; if(Date.now()-lastTry>=syncGap()){ lastTry=Date.now(); syncNow(); } }, 4000);
   }catch(e){ console.error(e); loaded=true; loadNote="Couldn't open the app's storage. Close and reopen the app."; render(); }
 })();
 /* ---------- app updates ---------- */
